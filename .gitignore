@@ -45,6 +45,9 @@ coverage/
 # project docs
 docs/
 
+# compiled server
+server.compiled.cjs
+
 # misc
 *.tsbuildinfo
 next-env.d.ts
