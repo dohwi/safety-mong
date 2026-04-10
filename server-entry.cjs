@@ -1,0 +1,24 @@
+const fs = require("fs");
+const path = require("path");
+
+const envPath = path.join(__dirname, ".env.local");
+if (fs.existsSync(envPath)) {
+  const content = fs.readFileSync(envPath, "utf-8");
+  for (const line of content.split("\n")) {
+    const trimmed = line.trim();
+    if (!trimmed || trimmed.startsWith("#")) continue;
+    const eqIndex = trimmed.indexOf("=");
+    if (eqIndex === -1) continue;
+    const key = trimmed.slice(0, eqIndex).trim();
+    const value = trimmed.slice(eqIndex + 1).trim();
+    if (!process.env[key]) {
+      process.env[key] = value;
+    }
+  }
+}
+
+const { AsyncLocalStorage } = require("async_hooks");
+if (!globalThis.AsyncLocalStorage) {
+  globalThis.AsyncLocalStorage = AsyncLocalStorage;
+}
+require("./server.compiled.cjs");
