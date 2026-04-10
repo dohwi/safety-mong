@@ -47,6 +47,7 @@ docs/
 
 # compiled server
 server.compiled.cjs
+server.compiled.mjs
 
 # misc
 *.tsbuildinfo
