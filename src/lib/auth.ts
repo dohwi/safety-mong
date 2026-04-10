@@ -1,7 +1,11 @@
 import { SignJWT, jwtVerify } from "jose";
 import { cookies } from "next/headers";
 
-const secret = new TextEncoder().encode(process.env.AUTH_SECRET!);
+if (!process.env.AUTH_SECRET || process.env.AUTH_SECRET.length === 0) {
+  throw new Error("AUTH_SECRET 환경변수가 설정되지 않았습니다. .env.local을 확인하세요.");
+}
+
+const secret = new TextEncoder().encode(process.env.AUTH_SECRET);
 const SESSION_COOKIE = "session";
 
 export interface SessionPayload {
@@ -49,4 +53,9 @@ export async function createSession(payload: SessionPayload): Promise<void> {
 export async function deleteSession(): Promise<void> {
   const cookieStore = await cookies();
   cookieStore.delete(SESSION_COOKIE);
+}
+
+export async function getSessionToken(): Promise<string | null> {
+  const cookieStore = await cookies();
+  return cookieStore.get(SESSION_COOKIE)?.value ?? null;
 }
