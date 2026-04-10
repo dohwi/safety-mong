@@ -1,6 +1,7 @@
 "use client";
 
-import { useActionState } from "react";
+import { useActionState, useEffect } from "react";
+import { useRouter } from "next/navigation";
 import type { ActionState } from "@/lib/actions/auth";
 
 interface AuthFormProps {
@@ -10,6 +11,13 @@ interface AuthFormProps {
 
 export function AuthForm({ action, mode }: AuthFormProps) {
   const [state, formAction, pending] = useActionState(action, null);
+  const router = useRouter();
+
+  useEffect(() => {
+    if (state?.success) {
+      router.push("/dashboard");
+    }
+  }, [state?.success, router]);
 
   return (
     <form action={formAction} className="space-y-4 w-full max-w-sm">
