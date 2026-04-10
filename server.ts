@@ -2,6 +2,8 @@ import { createServer } from "http";
 import { parse } from "url";
 import next from "next";
 import { Server } from "socket.io";
+import { registerSocketHandlers } from "@/lib/socket/handlers";
+import type { ClientToServerEvents, ServerToClientEvents } from "@/lib/socket/types";
 
 const dev = process.env.NODE_ENV !== "production";
 const hostname = "localhost";
@@ -16,20 +18,14 @@ app.prepare().then(() => {
     handle(req, res, parsedUrl);
   });
 
-  const io = new Server(httpServer, {
+  const io = new Server<ClientToServerEvents, ServerToClientEvents>(httpServer, {
     cors: {
       origin: process.env.NEXT_PUBLIC_APP_URL || `http://localhost:${port}`,
       methods: ["GET", "POST"],
     },
   });
 
-  io.on("connection", (socket) => {
-    console.log(`[Socket.IO] connected: ${socket.id}`);
-
-    socket.on("disconnect", (reason) => {
-      console.log(`[Socket.IO] disconnected: ${socket.id} (${reason})`);
-    });
-  });
+  registerSocketHandlers(io);
 
   httpServer.listen(port, () => {
     console.log(`> Ready on http://${hostname}:${port}`);
