@@ -24,7 +24,7 @@ export function LiveDashboard({
   qrUrl,
   authToken,
 }: LiveDashboardProps) {
-  const { socket } = useSocket();
+  const { socket } = useSocket(authToken);
   const { state, startSession, skipQuestion, endSession } = useHostDashboard(socket, sessionId);
 
   return (

@@ -1,10 +1,9 @@
-import { getSession } from "@/lib/auth";
+import { getSession, getSessionToken } from "@/lib/auth";
 import { redirect, notFound } from "next/navigation";
 import { db } from "@/db";
 import { sessions, quizBoxes, questions } from "@/db/schema";
 import { eq, and } from "drizzle-orm";
 import { LiveDashboard } from "@/components/host/live-dashboard";
-import { QRCodeSVG } from "qrcode.react";
 
 export default async function HostPage({
   params,
@@ -33,6 +32,7 @@ export default async function HostPage({
     .all();
 
   const qrUrl = `${process.env.NEXT_PUBLIC_APP_URL || "http://localhost:3000"}/join/${dbSession.code}`;
+  const authToken = await getSessionToken();
 
   return (
     <LiveDashboard
@@ -41,7 +41,7 @@ export default async function HostPage({
       quizBoxTitle={box.title}
       totalQuestions={questionList.length}
       qrUrl={qrUrl}
-      authToken={session.email}
+      authToken={authToken || ""}
     />
   );
 }

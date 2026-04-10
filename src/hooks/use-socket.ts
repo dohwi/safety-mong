@@ -1,30 +1,33 @@
 "use client";
 
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useRef, useState, useCallback } from "react";
 import { io } from "socket.io-client";
 import type { ServerToClientEvents, ClientToServerEvents } from "@/lib/socket/types";
 import type { Socket } from "socket.io-client";
 
 type TypedSocket = Socket<ServerToClientEvents, ClientToServerEvents>;
 
-export function useSocket(sessionId?: number) {
+export function useSocket(authToken?: string) {
   const socketRef = useRef<TypedSocket | null>(null);
+  const [socket, setSocket] = useState<TypedSocket | null>(null);
   const [connected, setConnected] = useState(false);
 
   useEffect(() => {
-    const socket: TypedSocket = io({
+    const s: TypedSocket = io({
       autoConnect: true,
+      auth: authToken ? { token: authToken } : undefined,
     });
 
-    socketRef.current = socket;
+    socketRef.current = s;
+    setSocket(s);
 
-    socket.on("connect", () => setConnected(true));
-    socket.on("disconnect", () => setConnected(false));
+    s.on("connect", () => setConnected(true));
+    s.on("disconnect", () => setConnected(false));
 
     return () => {
-      socket.disconnect();
+      s.disconnect();
     };
-  }, []);
+  }, [authToken]);
 
-  return { socket: socketRef.current, connected };
+  return { socket, connected };
 }
