@@ -6,7 +6,7 @@ import type { QuizGenerationOutput } from "@/lib/ai/schemas";
 export function QuizGenerator({
   onGenerated,
 }: {
-  onGenerated: (result: QuizGenerationOutput) => void;
+  onGenerated: (result: QuizGenerationOutput, topic: string) => void;
 }) {
   const [topic, setTopic] = useState("");
   const [loading, setLoading] = useState(false);
@@ -32,7 +32,7 @@ export function QuizGenerator({
       }
 
       const data: QuizGenerationOutput = await res.json();
-      onGenerated(data);
+      onGenerated(data, topic.trim());
     } catch (err) {
       setError(err instanceof Error ? err.message : "오류가 발생했습니다");
     } finally {

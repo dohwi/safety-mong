@@ -7,11 +7,12 @@ import { ReviewChecklist } from "@/components/review-checklist";
 
 interface QuizEditorProps {
   initialData: QuizGenerationOutput;
+  topic: string;
   onSave: (data: FormData) => void;
   saving: boolean;
 }
 
-export function QuizEditor({ initialData, onSave, saving }: QuizEditorProps) {
+export function QuizEditor({ initialData, topic, onSave, saving }: QuizEditorProps) {
   const [safetyContent, setSafetyContent] = useState(initialData.safetyContent);
   const [questionList, setQuestionList] = useState<QuestionOutput[]>(initialData.questions);
   const [checklistComplete, setChecklistComplete] = useState(false);
@@ -42,7 +43,7 @@ export function QuizEditor({ initialData, onSave, saving }: QuizEditorProps) {
     formData.append(
       "data",
       JSON.stringify({
-        title: "퀴즈",
+        title: topic,
         safetyContent,
         questionDurationMs: 30000,
         questions: questionList,

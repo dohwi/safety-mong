@@ -7,7 +7,7 @@ import { createQuizBox } from "@/lib/actions/quiz-boxes";
 import type { QuizGenerationOutput } from "@/lib/ai/schemas";
 
 export default function NewQuizBoxPage() {
-  const [generated, setGenerated] = useState<QuizGenerationOutput | null>(null);
+  const [generated, setGenerated] = useState<{ data: QuizGenerationOutput; topic: string } | null>(null);
   const [saving, setSaving] = useState(false);
 
   async function handleSave(formData: FormData) {
@@ -18,14 +18,14 @@ export default function NewQuizBoxPage() {
   if (!generated) {
     return (
       <div className="max-w-5xl mx-auto px-4 py-8">
-        <QuizGenerator onGenerated={setGenerated} />
+        <QuizGenerator onGenerated={(data, topic) => setGenerated({ data, topic })} />
       </div>
     );
   }
 
   return (
     <div className="max-w-5xl mx-auto px-4 py-8">
-      <QuizEditor initialData={generated} onSave={handleSave} saving={saving} />
+      <QuizEditor initialData={generated.data} topic={generated.topic} onSave={handleSave} saving={saving} />
     </div>
   );
 }
