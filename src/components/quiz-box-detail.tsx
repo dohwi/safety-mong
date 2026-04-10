@@ -4,6 +4,7 @@ import { useState } from "react";
 import type { InferSelectModel } from "drizzle-orm";
 import type { quizBoxes, questions } from "@/db/schema";
 import { confirmQuizBox, deleteQuizBox } from "@/lib/actions/quiz-boxes";
+import { createSession } from "@/lib/actions/sessions";
 import { AiWarningBanner } from "@/components/ai-warning-banner";
 
 type QuizBox = InferSelectModel<typeof quizBoxes>;
@@ -11,6 +12,8 @@ type Question = InferSelectModel<typeof questions>;
 
 export function QuizBoxDetail({ box, questions: questionList }: { box: QuizBox; questions: Question[] }) {
   const [confirming, setConfirming] = useState(false);
+  const [startingSession, setStartingSession] = useState(false);
+  const [error, setError] = useState<string | null>(null);
 
   async function handleConfirm() {
     setConfirming(true);
@@ -22,6 +25,20 @@ export function QuizBoxDetail({ box, questions: questionList }: { box: QuizBox; 
     if (!confirm("정말 삭제하시겠습니까?")) return;
     await deleteQuizBox(box.id);
     window.location.href = "/dashboard";
+  }
+
+  async function handleStartSession() {
+    setStartingSession(true);
+    setError(null);
+    const result = await createSession(box.id);
+    if (result.error) {
+      setError(result.error);
+      setStartingSession(false);
+      return;
+    }
+    if (result.success && result.sessionId) {
+      window.location.href = `/quiz-boxes/${box.id}/sessions/${result.sessionId}/host`;
+    }
   }
 
   return (
@@ -50,8 +67,28 @@ export function QuizBoxDetail({ box, questions: questionList }: { box: QuizBox; 
       {!box.isConfirmed && <AiWarningBanner />}
 
       {box.isConfirmed && (
-        <div className="bg-green-50 border border-green-200 text-green-800 px-4 py-3 rounded-lg text-sm">
-          확정된 퀴즈함입니다. 세션에서 사용할 수 있습니다.
+        <div className="space-y-3">
+          <div className="bg-green-50 border border-green-200 text-green-800 px-4 py-3 rounded-lg text-sm">
+            확정된 퀴즈함입니다. 세션에서 사용할 수 있습니다.
+          </div>
+          <div className="flex gap-2">
+            <button
+              onClick={handleStartSession}
+              disabled={startingSession}
+              className="px-6 py-2.5 bg-[#3b82f6] text-white font-medium rounded-lg hover:bg-[#1d4ed8] disabled:opacity-50"
+            >
+              {startingSession ? "세션 생성 중..." : "세션 시작"}
+            </button>
+            <a
+              href={`/quiz-boxes/${box.id}/sessions`}
+              className="px-4 py-2.5 border border-[#c1c1c1] text-[#222222] text-sm rounded-lg hover:bg-gray-50"
+            >
+              세션 기록
+            </a>
+          </div>
+          {error && (
+            <p className="text-sm text-red-600">{error}</p>
+          )}
         </div>
       )}
 
