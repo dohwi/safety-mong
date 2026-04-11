@@ -10,7 +10,7 @@ export function EducationSuggestions({ recommendations }: { recommendations: Ana
   };
 
   return (
-    <div className="rounded-2xl border border-[rgba(0,0,0,0.06)] bg-white p-6 space-y-4 shadow-sm">
+    <div className="rounded-2xl border border-[rgba(0,0,0,0.06)] bg-white p-6 space-y-4">
       <div className="flex items-center gap-2">
         <div className="p-1.5 rounded-lg bg-[#4F7CFF] text-white">
           <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">

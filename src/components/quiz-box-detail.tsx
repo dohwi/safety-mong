@@ -135,7 +135,7 @@ export function QuizBoxDetail({ box, questions: questionList, isEditable, active
 
   return (
     <div className="max-w-5xl mx-auto space-y-6">
-      <div className="rounded-[28px] border border-[rgba(0,0,0,0.06)] bg-white p-6 sm:p-7 shadow-sm">
+      <div className="rounded-[28px] border border-[rgba(0,0,0,0.06)] bg-white p-6 sm:p-7">
         <div className="flex flex-col gap-5 md:flex-row md:items-center md:justify-between">
           <div className="flex items-center gap-4">
             <Link href="/dashboard" className="flex h-11 w-11 items-center justify-center rounded-xl bg-[#F8F9FB] text-[#6B7280] transition-all hover:bg-[#F1F3F8] hover:text-[#222222]">
@@ -172,7 +172,7 @@ export function QuizBoxDetail({ box, questions: questionList, isEditable, active
 
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
         <div className="lg:col-span-2 space-y-6">
-          <section className="rounded-[24px] border border-[rgba(0,0,0,0.08)] bg-white p-5 sm:p-6 shadow-sm">
+          <section className="rounded-[24px] border border-[rgba(0,0,0,0.08)] bg-white p-5 sm:p-6">
             <div className="flex items-center justify-between mb-4">
               <h2 className="text-lg font-semibold text-[#222222]">안전수칙</h2>
               {isEditable && !isEditingSafety && (
@@ -234,7 +234,7 @@ export function QuizBoxDetail({ box, questions: questionList, isEditable, active
 
             <div className="grid grid-cols-1 gap-6">
               {questionList.map((q, i) => (
-                <div key={q.id} className="space-y-4 rounded-[24px] border border-[rgba(0,0,0,0.08)] bg-white p-5 shadow-sm transition-all duration-200">
+                <div key={q.id} className="space-y-4 rounded-[24px] border border-[rgba(0,0,0,0.08)] bg-white p-5 transition-all duration-200">
                   <div className="flex items-center justify-between">
                     <span className="text-sm font-medium text-[#6B7280]">
                       문제 {i + 1}
@@ -297,9 +297,9 @@ export function QuizBoxDetail({ box, questions: questionList, isEditable, active
 
         <aside className="lg:col-span-1 space-y-6">
           <div className="sticky top-6 space-y-6">
-            <div className="rounded-[24px] border border-[rgba(0,0,0,0.08)] bg-white p-6 shadow-sm">
+            <div className="rounded-[24px] border border-[rgba(0,0,0,0.08)] bg-white p-6">
               <div className="mb-5 flex items-center gap-3">
-                <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-[#4F7CFF] text-white shadow-sm">
+                <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-[#4F7CFF] text-white">
                   <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M14.752 11.168l-3.197-2.132A1 1 0 0010 9.87v4.263a1 1 0 001.555.832l3.197-2.132a1 1 0 000-1.664z" />
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
@@ -318,7 +318,7 @@ export function QuizBoxDetail({ box, questions: questionList, isEditable, active
                     <p className="text-xs font-bold text-[#4F7CFF]">현재 진행 중인 세션</p>
                   </div>
                   <div className="flex flex-col gap-2">
-                    <div className="flex items-center justify-center bg-white py-3 rounded-xl border border-[#4F7CFF]/10 shadow-sm">
+                    <div className="flex items-center justify-center bg-white py-3 rounded-xl border border-[#4F7CFF]/10">
                       <span className="text-xl font-bold text-[#222222] tracking-widest font-mono">{activeSessionCode}</span>
                     </div>
                     <Link
@@ -358,7 +358,7 @@ export function QuizBoxDetail({ box, questions: questionList, isEditable, active
               </div>
             </div>
 
-            <div className="rounded-[24px] border border-[rgba(0,0,0,0.08)] bg-white p-6 shadow-sm">
+            <div className="rounded-[24px] border border-[rgba(0,0,0,0.08)] bg-white p-6">
               <h3 className="text-sm font-bold mb-3 text-[#222222]">도움말</h3>
               <ul className="space-y-2 text-xs text-[#6B7280] font-medium">
                 <li className="flex gap-2 leading-relaxed">
@@ -377,7 +377,7 @@ export function QuizBoxDetail({ box, questions: questionList, isEditable, active
 
       {showAddForm && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-[rgba(0,0,0,0.4)] backdrop-blur-sm" onClick={() => { setShowAddForm(false); setEditingQuestionId(null); }}>
-          <div className="mx-4 max-h-[90vh] w-full max-w-lg overflow-y-auto rounded-[24px] border border-[rgba(0,0,0,0.08)] bg-white p-6 shadow-xl" onClick={(e) => e.stopPropagation()}>
+          <div className="mx-4 max-h-[90vh] w-full max-w-lg overflow-y-auto rounded-[24px] border border-[rgba(0,0,0,0.08)] bg-white p-6" onClick={(e) => e.stopPropagation()}>
             <div className="flex items-center justify-between">
               <h3 className="text-lg font-semibold text-[#222222]">{editingQuestionId ? "문제 수정" : "문제 추가"}</h3>
               <button type="button" onClick={() => { setShowAddForm(false); setEditingQuestionId(null); }} className="text-xl leading-none text-[#6B7280] hover:text-[#222222] transition-colors">
@@ -402,7 +402,7 @@ export function QuizBoxDetail({ box, questions: questionList, isEditable, active
                       onClick={() => setNewQ((prev) => ({ ...prev, correctIndex: oi }))}
                       className={`flex h-8 w-8 shrink-0 items-center justify-center rounded-full border-2 text-xs font-semibold transition-all duration-200 ${
                         newQ.correctIndex === oi
-                          ? "border-[#4F7CFF] bg-[#4F7CFF] text-white shadow-[0_0_12px_rgba(79,124,255,0.3)]"
+                          ? "border-[#4F7CFF] bg-[#4F7CFF] text-white"
                           : "border-[rgba(0,0,0,0.08)] bg-[#F1F3F8] text-[#6B7280] hover:border-[rgba(79,124,255,0.4)]"
                       }`}
                     >

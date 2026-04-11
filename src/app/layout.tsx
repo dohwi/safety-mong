@@ -33,7 +33,7 @@ export default function RootLayout({
           rel="stylesheet"
         />
       </head>
-      <body className="min-h-full flex flex-col relative bg-[#F8F9FB]">
+      <body className="min-h-full flex flex-col relative bg-[#F1F3F8]">
         <LabBg />
         <div className="relative z-10 flex-1 flex flex-col">{children}</div>
       </body>

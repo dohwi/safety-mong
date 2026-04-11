@@ -104,35 +104,20 @@ export function QuizEditor({ initialData, topic, onSave, saving }: QuizEditorPro
 
   return (
     <div className="mx-auto max-w-5xl space-y-6">
-      <div className="rounded-[32px] border border-[rgba(0,0,0,0.08)] bg-white p-6 sm:p-8 shadow-sm">
+      <div className="rounded-[28px] border border-[rgba(0,0,0,0.06)] bg-white p-6 sm:p-7">
         <div className="flex flex-col gap-5 md:flex-row md:items-center md:justify-between">
           <div className="flex items-center gap-4">
-            <div className="flex h-20 w-20 shrink-0 items-center justify-center rounded-2xl bg-[#F8F9FB]">
-              <BrandMascot variant="experiment" size={100} className="h-auto w-16 drop-shadow-sm" />
-            </div>
+            <span className="text-2xl">{initialData.icon || "🧪"}</span>
             <div>
-              <div className="flex items-center gap-2">
-                <span className="text-2xl">{initialData.icon || "🧪"}</span>
-                <h1 className="text-2xl font-bold tracking-[-0.44px] text-[#222222]">{topic}</h1>
-              </div>
-              <p className="mt-1 text-sm text-[#6B7280]">AI가 생성한 퀴즈 초안입니다. 문항을 검수하고 저장하세요.</p>
-            </div>
-          </div>
-          <div className="flex items-center gap-3">
-            <div className="rounded-xl border border-[rgba(0,0,0,0.06)] bg-[#F8F9FB] px-4 py-2 text-center">
-              <p className="text-[10px] font-bold text-[#9CA3AF] uppercase">생성 문항</p>
-              <p className="text-lg font-bold text-[#222222]">{questionList.length}</p>
-            </div>
-            <div className="rounded-xl border border-[rgba(0,0,0,0.06)] bg-[#F1F3F8] px-4 py-2 text-center">
-              <p className="text-[10px] font-bold text-[#9CA3AF] uppercase">편집 상태</p>
-              <p className="text-sm font-bold text-[#222222]">검수 중</p>
+              <h1 className="text-2xl font-bold tracking-tight text-[#222222]">{topic}</h1>
+              <p className="text-xs font-medium text-[#9CA3AF]">AI 생성 퀴즈 검수 · {questionList.length}문항</p>
             </div>
           </div>
         </div>
       </div>
       <AiWarningBanner />
 
-      <div className="rounded-[24px] border border-[rgba(0,0,0,0.08)] bg-white p-5 shadow-sm">
+      <div className="rounded-[24px] border border-[rgba(0,0,0,0.08)] bg-white p-5">
         <h2 className="mb-2 text-lg font-semibold text-[#222222]">안전수칙</h2>
         <textarea
           ref={safetyContentRef}
@@ -159,7 +144,7 @@ export function QuizEditor({ initialData, topic, onSave, saving }: QuizEditorPro
         {questionList.map((q, qi) => (
           <div
             key={qi}
-            className="space-y-4 rounded-[24px] border border-[rgba(0,0,0,0.08)] bg-white p-5 shadow-sm transition-all duration-200"
+            className="space-y-4 rounded-[24px] border border-[rgba(0,0,0,0.08)] bg-white p-5 transition-all duration-200"
           >
             <div className="flex items-center justify-between">
               <span className="text-sm font-medium text-[#6B7280]">
@@ -190,7 +175,7 @@ export function QuizEditor({ initialData, topic, onSave, saving }: QuizEditorPro
                     onClick={() => updateQuestion(qi, "correctIndex", oi)}
                     className={`flex h-8 w-8 items-center justify-center rounded-full border-2 text-xs font-semibold transition-all duration-200 ${
                       q.correctIndex === oi
-                        ? "border-[#4F7CFF] bg-[#4F7CFF] text-white shadow-[0_0_12px_rgba(79,124,255,0.3)]"
+                        ? "border-[#4F7CFF] bg-[#4F7CFF] text-white"
                         : "border-[rgba(0,0,0,0.08)] bg-[#F1F3F8] text-[#6B7280] hover:border-[rgba(79,124,255,0.4)]"
                     }`}
                   >
@@ -243,7 +228,7 @@ export function QuizEditor({ initialData, topic, onSave, saving }: QuizEditorPro
 
       {showAddModal && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-[rgba(0,0,0,0.4)] backdrop-blur-sm" onClick={() => setShowAddModal(false)}>
-          <div className="mx-4 max-h-[90vh] w-full max-w-lg overflow-y-auto rounded-[24px] border border-[rgba(0,0,0,0.08)] bg-white p-6 shadow-xl" onClick={(e) => e.stopPropagation()}>
+          <div className="mx-4 max-h-[90vh] w-full max-w-lg overflow-y-auto rounded-[24px] border border-[rgba(0,0,0,0.08)] bg-white p-6" onClick={(e) => e.stopPropagation()}>
             <div className="flex items-center justify-between">
               <h3 className="text-lg font-semibold text-[#222222]">문제 추가</h3>
               <button type="button" onClick={() => setShowAddModal(false)} className="text-xl leading-none text-[#6B7280] hover:text-[#222222] transition-colors">
@@ -268,7 +253,7 @@ export function QuizEditor({ initialData, topic, onSave, saving }: QuizEditorPro
                       onClick={() => setNewQuestion((prev) => ({ ...prev, correctIndex: index }))}
                       className={`flex h-8 w-8 shrink-0 items-center justify-center rounded-full border-2 text-xs font-semibold transition-all duration-200 ${
                         newQuestion.correctIndex === index
-                          ? "border-[#4F7CFF] bg-[#4F7CFF] text-white shadow-[0_0_12px_rgba(79,124,255,0.3)]"
+                          ? "border-[#4F7CFF] bg-[#4F7CFF] text-white"
                           : "border-[rgba(0,0,0,0.08)] bg-[#F1F3F8] text-[#6B7280] hover:border-[rgba(79,124,255,0.4)]"
                       }`}
                     >

@@ -3,11 +3,7 @@
 import { useState, useEffect, useRef } from "react";
 import { useRouter } from "next/navigation";
 import { BrandMascot } from "@/components/brand-mascot";
-import Link from "next/link";
 import type { AnalysisOutput } from "@/lib/ai/schemas";
-import { QuestionBreakdown } from "./analysis/question-breakdown";
-import { MisconceptionSummary } from "./analysis/vulnerability-summary";
-import { EducationSuggestions } from "./analysis/education-suggestions";
 
 interface AnalysisViewProps {
   sessionId: number;
@@ -69,7 +65,7 @@ export function AnalysisView({ sessionId, quizBoxTitle, aiAnalysis, phase }: Ana
 
   return (
     <div className="max-w-5xl mx-auto space-y-6 animate-fade-in-up">
-      <div className="rounded-[28px] border border-[rgba(0,0,0,0.06)] bg-white p-5 sm:p-6 shadow-sm">
+      <div className="rounded-[28px] border border-[rgba(0,0,0,0.06)] bg-white p-5 sm:p-6">
         <div className="flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
           <div className="flex items-center gap-4">
             <button
@@ -84,7 +80,7 @@ export function AnalysisView({ sessionId, quizBoxTitle, aiAnalysis, phase }: Ana
               <BrandMascot variant="safety" size={36} className="shrink-0" />
               <div>
                 <h1 className="text-xl font-bold tracking-tight text-[#222222]">{quizBoxTitle}</h1>
-                <p className="text-xs font-medium text-[#9CA3AF]">AI 심층 분석 리포트</p>
+                <p className="text-xs font-medium text-[#9CA3AF]">실험 전 강조 포인트 분석</p>
               </div>
             </div>
           </div>
@@ -99,12 +95,12 @@ export function AnalysisView({ sessionId, quizBoxTitle, aiAnalysis, phase }: Ana
         </div>
       </div>
 
-      <div className="max-w-4xl mx-auto space-y-8">
+      <div className="max-w-4xl mx-auto space-y-6">
         {!analysis && loading && (
           <div className="flex flex-col items-center justify-center py-20 space-y-6">
             <div className="relative">
               <div className="absolute inset-0 bg-[#4F7CFF]/20 rounded-full blur-3xl animate-pulse" />
-              <div className="relative w-20 h-20 rounded-3xl bg-white border border-[rgba(0,0,0,0.06)] shadow-xl flex items-center justify-center rotate-3 animate-lab-float">
+              <div className="relative w-20 h-20 rounded-3xl bg-white border border-[rgba(0,0,0,0.06)] flex items-center justify-center rotate-3 animate-lab-float">
                 <div className="w-10 h-10 border-4 border-[#4F7CFF]/20 border-t-[#4F7CFF] rounded-full animate-spin" />
               </div>
             </div>
@@ -116,38 +112,80 @@ export function AnalysisView({ sessionId, quizBoxTitle, aiAnalysis, phase }: Ana
         )}
 
         {analysis && (
-          <div className="space-y-6">
+          <div className="space-y-4">
             {analysis.overallCorrectRate != null && (
-              <div className="rounded-2xl border border-[rgba(0,0,0,0.08)] bg-white p-5 shadow-sm">
-                <div className="flex items-center justify-between">
-                  <span className="text-sm font-medium text-[#6B7280]">전체 평균 정답률</span>
-                  <span className={`text-3xl font-black tabular-nums ${
-                    analysis.overallCorrectRate >= 0.8 ? "text-[#22C55E]" : analysis.overallCorrectRate >= 0.6 ? "text-[#F59E0B]" : "text-[#EF4444]"
-                  }`}>
-                    {Math.round(analysis.overallCorrectRate * 100)}%
-                  </span>
-                </div>
-                <div className="w-full h-2.5 bg-[#F1F3F8] rounded-full overflow-hidden mt-3">
+              <div className="flex items-center gap-4 px-1">
+                <span className="text-sm font-bold text-[#6B7280]">평균 정답률</span>
+                <span className="text-2xl font-black tabular-nums text-[#222222]">
+                  {Math.round(analysis.overallCorrectRate * 100)}%
+                </span>
+                <div className="flex-1 h-2 bg-[#F1F3F8] rounded-full overflow-hidden">
                   <div
-                    className="h-full rounded-full transition-all duration-700"
-                    style={{
-                      width: `${Math.round(analysis.overallCorrectRate * 100)}%`,
-                      backgroundColor: analysis.overallCorrectRate >= 0.8 ? "#22C55E" : analysis.overallCorrectRate >= 0.6 ? "#F59E0B" : "#EF4444",
-                    }}
+                    className="h-full rounded-full bg-[#4F7CFF] transition-all duration-700"
+                    style={{ width: `${Math.round(analysis.overallCorrectRate * 100)}%` }}
                   />
                 </div>
               </div>
             )}
 
-          <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-            <EducationSuggestions recommendations={analysis.recommendations} />
-            <MisconceptionSummary analysis={analysis} />
-          </div>
+            <div className="space-y-3">
+              {analysis.questionBreakdowns.map((q) => {
+                const needsEmphasis = q.correctRate < 0.6;
+                return (
+                  <div
+                    key={q.questionIndex}
+                    className={`rounded-[24px] border bg-white p-5 space-y-3 ${
+                      needsEmphasis
+                        ? "border-[rgba(239,68,68,0.2)]"
+                        : "border-[rgba(0,0,0,0.06)]"
+                    }`}
+                  >
+                    <div className="space-y-3">
+                      <div className="flex items-start gap-4">
+                        <div className="flex flex-col items-center gap-1 shrink-0">
+                          <span className={`flex items-center justify-center w-8 h-8 rounded-xl text-sm font-black text-white ${
+                            needsEmphasis ? "bg-[#EF4444]" : "bg-[#4F7CFF]"
+                          }`}>
+                            {q.questionIndex + 1}
+                          </span>
+                        </div>
 
-          <QuestionBreakdown breakdowns={analysis.questionBreakdowns} />
-        </div>
-      )}
-    </div>
+                        <div className="flex-1 min-w-0 space-y-2">
+                          <p className="text-sm font-bold text-[#222222] leading-relaxed">{q.questionText}</p>
+
+                          <div className="flex items-center gap-3 text-xs text-[#6B7280]">
+                            <span className="font-bold">정답률 <span className={`text-base font-black ${needsEmphasis ? "text-[#EF4444]" : "text-[#222222]"}`}>{Math.round(q.correctRate * 100)}%</span></span>
+                            <span className="text-[rgba(0,0,0,0.15)]">|</span>
+                            <span>정답: {q.correctOptionText}</span>
+                            {q.topWrongOptionText && (
+                              <>
+                                <span className="text-[rgba(0,0,0,0.15)]">|</span>
+                                <span>최다 오답: {q.topWrongOptionText}</span>
+                              </>
+                            )}
+                          </div>
+                        </div>
+                      </div>
+
+                      {needsEmphasis && (
+                        <div className="ml-12 rounded-xl bg-[#FEF2F2] border border-[rgba(239,68,68,0.15)] px-4 py-3">
+                          <div className="flex items-start gap-2.5">
+                            <span className="mt-0.5 flex items-center justify-center w-5 h-5 rounded bg-[#EF4444] text-white text-[10px] font-black shrink-0">!</span>
+                            <div>
+                              <p className="text-xs font-black text-[#EF4444] mb-1">강조 필요</p>
+                              <p className="text-sm text-[#4B5563] leading-relaxed">{q.teachingTip}</p>
+                            </div>
+                          </div>
+                        </div>
+                      )}
+                    </div>
+                  </div>
+                );
+              })}
+            </div>
+          </div>
+        )}
+      </div>
     </div>
   );
 }

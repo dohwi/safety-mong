@@ -43,7 +43,7 @@ export function QuizGenerator({
 
   return (
     <div className="mx-auto max-w-4xl space-y-6">
-      <div className="rounded-[28px] border border-[rgba(0,0,0,0.06)] bg-white p-6 sm:p-7 shadow-sm">
+      <div className="rounded-[28px] border border-[rgba(0,0,0,0.06)] bg-white p-6 sm:p-7">
         <div className="flex flex-col gap-6 sm:flex-row sm:items-center sm:justify-between">
           <div className="max-w-xl">
             <p className="text-sm font-bold text-[#4F7CFF]">AI 퀴즈 생성</p>
@@ -51,7 +51,7 @@ export function QuizGenerator({
             <p className="mt-2 text-sm font-medium leading-relaxed text-[#6B7280]">핵심 안전수칙, 헷갈리기 쉬운 선택지, 해설까지 한 번에 구성됩니다.</p>
           </div>
           <div className="flex h-24 w-24 items-center justify-center self-center rounded-3xl bg-[#F8F9FB] sm:self-auto">
-            <BrandMascot variant="experiment" size={100} className="h-auto w-20 drop-shadow-sm" priority />
+            <BrandMascot variant="experiment" size={100} className="h-auto w-20" priority />
           </div>
         </div>
 
@@ -90,12 +90,12 @@ export function QuizGenerator({
       )}
 
       {loading && (
-        <div className="overflow-hidden rounded-[28px] border border-[rgba(0,0,0,0.06)] bg-white p-6 sm:p-7 shadow-sm">
+        <div className="overflow-hidden rounded-[28px] border border-[rgba(0,0,0,0.06)] bg-white p-6 sm:p-7">
           <div className="flex flex-col gap-5 sm:flex-row sm:items-center">
             <div className="relative mx-auto sm:mx-0">
               <div className="absolute inset-0 animate-ping rounded-full bg-[rgba(79,124,255,0.1)]" />
               <div className="relative flex h-20 w-20 items-center justify-center rounded-3xl bg-[#F1F3F8]">
-                <BrandMascot variant="experiment" size={80} className="h-auto w-16 animate-pulse drop-shadow-sm" />
+                <BrandMascot variant="experiment" size={80} className="h-auto w-16 animate-pulse" />
               </div>
             </div>
             <div className="flex-1 rounded-[24px] border border-[rgba(0,0,0,0.04)] bg-[#F8F9FB] px-5 py-5 text-left">

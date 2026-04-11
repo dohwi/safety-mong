@@ -12,7 +12,7 @@ export default async function InstructorLayout({ children }: { children: ReactNo
 
   return (
     <div className="min-h-screen">
-      <header className="sticky top-0 z-50 border-b border-[rgba(0,0,0,0.08)] bg-[#F8F9FB]/80 backdrop-blur-md">
+      <header className="sticky top-0 z-50 border-b border-[rgba(0,0,0,0.08)] bg-white/80 backdrop-blur-md">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4 flex items-center justify-between">
           <Link href="/dashboard" className="flex items-center gap-2 text-[#222222]">
             <Image
