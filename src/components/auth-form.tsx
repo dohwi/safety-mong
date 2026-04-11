@@ -1,6 +1,6 @@
 "use client";
 
-import { useActionState, useEffect } from "react";
+import { useActionState, useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
 import type { ActionState } from "@/lib/actions/auth";
@@ -13,6 +13,16 @@ interface AuthFormProps {
 export function AuthForm({ action, mode }: AuthFormProps) {
   const [state, formAction, pending] = useActionState(action, null);
   const router = useRouter();
+
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
+
+  useEffect(() => {
+    if (mode === "login") {
+      setEmail("test@teacher.com");
+      setPassword("test1234");
+    }
+  }, [mode]);
 
   useEffect(() => {
     if (state?.success) router.push("/dashboard");
@@ -37,12 +47,31 @@ export function AuthForm({ action, mode }: AuthFormProps) {
 
       <div>
         <label htmlFor="email" className="block text-sm font-medium text-[#6B7280] mb-1">이메일</label>
-        <input id="email" name="email" type="email" required className={inputCls} placeholder="instructor@university.ac.kr" />
+        <input 
+          id="email" 
+          name="email" 
+          type="email" 
+          required 
+          className={inputCls} 
+          placeholder="instructor@university.ac.kr" 
+          value={email}
+          onChange={(e) => setEmail(e.target.value)}
+        />
       </div>
 
       <div>
         <label htmlFor="password" className="block text-sm font-medium text-[#6B7280] mb-1">비밀번호</label>
-        <input id="password" name="password" type="password" required minLength={mode === "signup" ? 8 : 1} className={inputCls} placeholder={mode === "signup" ? "8자 이상 입력" : "비밀번호 입력"} />
+        <input 
+          id="password" 
+          name="password" 
+          type="password" 
+          required 
+          minLength={mode === "signup" ? 8 : 1} 
+          className={inputCls} 
+          placeholder={mode === "signup" ? "8자 이상 입력" : "비밀번호 입력"} 
+          value={password}
+          onChange={(e) => setPassword(e.target.value)}
+        />
       </div>
 
       <button
