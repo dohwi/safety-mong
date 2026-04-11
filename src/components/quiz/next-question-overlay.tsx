@@ -5,7 +5,6 @@ import { useEffect, useState } from "react";
 interface NextQuestionOverlayProps {
   correctCount: number;
   totalParticipants: number;
-  isHost?: boolean;
   customTitle?: string;
   customSubtitle?: string;
 }
@@ -13,7 +12,6 @@ interface NextQuestionOverlayProps {
 export function NextQuestionOverlay({
   correctCount,
   totalParticipants,
-  isHost = false,
   customTitle,
   customSubtitle,
 }: NextQuestionOverlayProps) {

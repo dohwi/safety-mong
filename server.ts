@@ -3,7 +3,7 @@ import { parse } from "url";
 import next from "next";
 import { Server, Socket } from "socket.io";
 import { db } from "@/db";
-import { sessions, participants, questions, quizBoxes, answers } from "@/db/schema";
+import { sessions, participants, questions, answers } from "@/db/schema";
 import { eq, and } from "drizzle-orm";
 import { decrypt } from "@/lib/auth";
 import crypto from "crypto";
@@ -173,7 +173,7 @@ app.prepare().then(() => {
 
   const io = new Server(httpServer, {
     cors: {
-      origin: process.env.NEXT_PUBLIC_APP_URL || (dev ? true : `http://localhost:${port}`),
+      origin: process.env.NEXT_PUBLIC_APP_URL || (dev ? ["http://localhost:3000", `http://localhost:${port}`] : `http://localhost:${port}`),
       methods: ["GET", "POST"],
     },
   });
@@ -285,6 +285,11 @@ app.prepare().then(() => {
     });
 
     socket.on("session:join", ({ sessionId, nickname, reconnectToken }: { sessionId: number; nickname: string; reconnectToken?: string }) => {
+      if (!nickname || typeof nickname !== "string" || nickname.trim().length === 0 || nickname.length > 20) {
+        socket.emit("session:error", { message: "유효한 닉네임을 입력하세요" });
+        return;
+      }
+      const cleanNickname = nickname.trim().slice(0, 20);
       let state = getLiveSession(sessionId);
       if (!state) {
         const dbSession = db.select().from(sessions).where(eq(sessions.id, sessionId)).get();
@@ -305,10 +310,10 @@ app.prepare().then(() => {
         }
       }
       if (state.participants.size >= MAX_PARTICIPANTS) { socket.emit("session:error", { message: "세션이 가득 찼습니다" }); return; }
-      const dup = db.select().from(participants).where(and(eq(participants.sessionId, sessionId), eq(participants.nickname, nickname))).get();
+      const dup = db.select().from(participants).where(and(eq(participants.sessionId, sessionId), eq(participants.nickname, cleanNickname))).get();
       if (dup) { socket.emit("session:error", { message: "이미 사용 중인 닉네임" }); return; }
       const rt = crypto.randomUUID();
-      const p = db.insert(participants).values({ sessionId, nickname, reconnectToken: rt, joinedAt: new Date().toISOString() }).returning().get();
+      const p = db.insert(participants).values({ sessionId, nickname: cleanNickname, reconnectToken: rt, joinedAt: new Date().toISOString() }).returning().get();
       socket.join(`session:${sessionId}`);
       state.participants.set(p.id, { id: p.id, nickname: p.nickname, hasAnswered: false });
       state.socketMap.set(socket.id, p.id);
@@ -323,12 +328,14 @@ app.prepare().then(() => {
     });
 
     socket.on("session:start", ({ sessionId }: { sessionId: number }) => {
+      if (!socket.rooms.has(`session:${sessionId}:host`)) return;
       const state = getLiveSession(sessionId);
       if (!state || state.phase !== "waiting") return;
       startQuestion(sessionId, state);
     });
 
     socket.on("session:skip", ({ sessionId }: { sessionId: number }) => {
+      if (!socket.rooms.has(`session:${sessionId}:host`)) return;
       const state = getLiveSession(sessionId);
       if (!state || state.phase !== "active") return;
       const timers = sessionTimers.get(sessionId);
@@ -338,6 +345,7 @@ app.prepare().then(() => {
     });
 
     socket.on("session:end", ({ sessionId }: { sessionId: number }) => {
+      if (!socket.rooms.has(`session:${sessionId}:host`)) return;
       const state = getLiveSession(sessionId);
       if (!state) return;
       const timers = sessionTimers.get(sessionId);

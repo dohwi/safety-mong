@@ -1,7 +1,13 @@
 import { NextResponse } from "next/server";
 import { generateQuiz } from "@/lib/ai/generate-quiz";
+import { getSession } from "@/lib/auth";
 
 export async function POST(request: Request) {
+  const session = await getSession();
+  if (!session) {
+    return NextResponse.json({ error: "인증이 필요합니다" }, { status: 401 });
+  }
+
   try {
     const body = await request.json();
     const topic = body.topic;

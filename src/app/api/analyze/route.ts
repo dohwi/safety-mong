@@ -3,10 +3,16 @@ import { analyzeResults } from "@/lib/ai/analyze-results";
 import { db } from "@/db";
 import { sessions } from "@/db/schema";
 import { eq } from "drizzle-orm";
+import { getSession } from "@/lib/auth";
 
 const inProgress = new Set<number>();
 
 export async function POST(request: Request) {
+  const authSession = await getSession();
+  if (!authSession) {
+    return NextResponse.json({ error: "인증이 필요합니다" }, { status: 401 });
+  }
+
   try {
     const { sessionId } = await request.json();
     if (!sessionId || typeof sessionId !== "number") {
@@ -16,6 +22,10 @@ export async function POST(request: Request) {
     const session = db.select().from(sessions).where(eq(sessions.id, sessionId)).get();
     if (!session) {
       return NextResponse.json({ error: "세션을 찾을 수 없습니다" }, { status: 404 });
+    }
+
+    if (session.instructorId !== authSession.userId) {
+      return NextResponse.json({ error: "권한이 없습니다" }, { status: 403 });
     }
 
     if (session.aiAnalysis) {

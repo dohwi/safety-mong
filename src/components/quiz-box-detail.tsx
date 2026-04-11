@@ -7,7 +7,7 @@ import ReactMarkdown from "react-markdown";
 import remarkGfm from "remark-gfm";
 import type { InferSelectModel } from "drizzle-orm";
 import type { quizBoxes, questions } from "@/db/schema";
-import { deleteQuizBox, updateSafetyContent, addQuestion, deleteQuestion, updateQuestionDuration, updateQuestion } from "@/lib/actions/quiz-boxes";
+import { deleteQuizBox, updateSafetyContent, addQuestion, deleteQuestion, updateQuestion } from "@/lib/actions/quiz-boxes";
 import { createSession } from "@/lib/actions/sessions";
 import { AiWarningBanner } from "@/components/ai-warning-banner";
 
@@ -47,10 +47,6 @@ export function QuizBoxDetail({ box, questions: questionList, isEditable, active
   const [newQ, setNewQ] = useState<NewQuestionForm>(emptyForm());
   const [addingQuestion, setAddingQuestion] = useState(false);
   const [editingQuestionId, setEditingQuestionId] = useState<number | null>(null);
-  const [durationDrafts, setDurationDrafts] = useState<Record<number, number>>(
-    Object.fromEntries(questionList.map((question) => [question.id, question.questionDurationMs / 1000]))
-  );
-  const [savingDurationId, setSavingDurationId] = useState<number | null>(null);
 
   const [targetCount, setTargetCount] = useState<number>(0);
 
@@ -123,21 +119,6 @@ export function QuizBoxDetail({ box, questions: questionList, isEditable, active
       setError(result.error);
       return;
     }
-    router.refresh();
-  }
-
-  async function handleSaveQuestionDuration(questionId: number) {
-    const draftSeconds = durationDrafts[questionId];
-    setSavingDurationId(questionId);
-    setError(null);
-
-    const result = await updateQuestionDuration(questionId, box.id, (draftSeconds || 30) * 1000);
-    if (result.error) {
-      setError(result.error);
-      setSavingDurationId(null);
-      return;
-    }
-
     router.refresh();
   }
 

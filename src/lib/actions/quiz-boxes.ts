@@ -81,24 +81,6 @@ export async function createQuizBox(formData: FormData) {
   redirect(`/quiz-boxes/${box.id}`);
 }
 
-export async function confirmQuizBox(quizBoxId: number) {
-  const session = await getSession();
-  if (!session) return { error: "인증이 필요합니다" };
-
-  const box = db.select().from(quizBoxes).where(
-    and(eq(quizBoxes.id, quizBoxId), eq(quizBoxes.instructorId, session.userId))
-  ).get();
-
-  if (!box) return { error: "퀴즈함을 찾을 수 없습니다" };
-
-  db.update(quizBoxes)
-    .set({ isConfirmed: true, updatedAt: new Date().toISOString() })
-    .where(eq(quizBoxes.id, quizBoxId))
-    .run();
-
-  return { success: true };
-}
-
 export async function deleteQuizBox(quizBoxId: number) {
   const session = await getSession();
   if (!session) return { error: "인증이 필요합니다" };
@@ -191,27 +173,6 @@ export async function addQuestion(quizBoxId: number, question: QuestionInput) {
         category: parsed.data.category,
         createdAt: new Date().toISOString(),
   }).run();
-
-  return { success: true };
-}
-
-export async function updateQuestionDuration(questionId: number, quizBoxId: number, questionDurationMs: number) {
-  const session = await getSession();
-  if (!session) return { error: "인증이 필요합니다" };
-
-  if (!Number.isInteger(questionDurationMs) || questionDurationMs < 5000 || questionDurationMs > 120000) {
-    return { error: "제한시간은 5초 이상 120초 이하여야 합니다" };
-  }
-
-  const box = verifyOwnership(quizBoxId, session.userId);
-  if (!box) return { error: "퀴즈함을 찾을 수 없습니다" };
-
-  if (hasActiveSession(quizBoxId)) return { error: "세션 진행 중에는 편집할 수 없습니다" };
-
-  db.update(questions)
-    .set({ questionDurationMs })
-    .where(and(eq(questions.id, questionId), eq(questions.quizBoxId, quizBoxId)))
-    .run();
 
   return { success: true };
 }

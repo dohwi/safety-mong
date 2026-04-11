@@ -9,7 +9,6 @@ import { WaitingRoom } from "@/components/student/waiting-room";
 import { QuestionCard } from "@/components/student/question-card";
 import { FeedbackOverlay } from "@/components/student/feedback-overlay";
 import { QuizComplete } from "@/components/student/quiz-complete";
-import { NextQuestionOverlay } from "@/components/quiz/next-question-overlay";
 import { use } from "react";
 
 function PlayContent({ sessionId }: { sessionId: number }) {

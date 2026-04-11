@@ -18,6 +18,10 @@ const loginSchema = z.object({
   password: z.string().min(1, "비밀번호를 입력해주세요"),
 });
 
+const loginAttempts = new Map<string, { count: number; lastAttempt: number }>();
+const MAX_LOGIN_ATTEMPTS = 5;
+const LOGIN_WINDOW_MS = 15 * 60 * 1000;
+
 export type ActionState = { error?: string; success?: boolean } | null;
 
 export async function signup(_: ActionState, formData: FormData): Promise<ActionState> {
@@ -63,6 +67,11 @@ export async function login(_: ActionState, formData: FormData): Promise<ActionS
 
   const { email, password } = result.data;
 
+  const attempts = loginAttempts.get(email);
+  if (attempts && attempts.count >= MAX_LOGIN_ATTEMPTS && Date.now() - attempts.lastAttempt < LOGIN_WINDOW_MS) {
+    return { error: "너무 많은 로그인 시도. 잠시 후 다시 시도하세요." };
+  }
+
   const user = db.select().from(users).where(eq(users.email, email)).get();
   if (!user) {
     return { error: "이메일 또는 비밀번호가 올바르지 않습니다" };
@@ -70,9 +79,14 @@ export async function login(_: ActionState, formData: FormData): Promise<ActionS
 
   const valid = await compare(password, user.passwordHash);
   if (!valid) {
+    const a = loginAttempts.get(email) || { count: 0, lastAttempt: 0 };
+    a.count++;
+    a.lastAttempt = Date.now();
+    loginAttempts.set(email, a);
     return { error: "이메일 또는 비밀번호가 올바르지 않습니다" };
   }
 
+  loginAttempts.delete(email);
   await createSession({ userId: user.id, email: user.email, name: user.name });
   return { success: true };
 }

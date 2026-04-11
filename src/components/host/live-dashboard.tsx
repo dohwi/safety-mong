@@ -84,7 +84,6 @@ export function LiveDashboard({
         <NextQuestionOverlay 
           correctCount={0} 
           totalParticipants={state.participants.length} 
-          isHost={true}
           customTitle="퀴즈를 시작합니다!"
           customSubtitle="준비 되셨나요? 첫 번째 문제가 곧 나타납니다."
         />

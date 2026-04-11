@@ -10,12 +10,6 @@ export interface QuestionBroadcast {
   remainingSeconds: number;
 }
 
-export interface QuestionHostBroadcast {
-  index: number;
-  startedAt: number;
-  durationMs: number;
-}
-
 export interface SessionStatePayload {
   phase: SessionPhase;
   currentQuestionIndex: number;
