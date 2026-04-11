@@ -32,6 +32,25 @@ pnpm test:run         # 테스트 (단일 실행)
 - 코드에 주석 금지 (요청 시만)
 - 학생 뷰는 `max-w-md mx-auto`로 모바일 최적화
 
+## 타이머/카운트다운 구현 규칙
+
+- **서버가 권위** — 모든 타이머의 시작/종료는 서버 `SessionTimer`로 결정. 클라이언트는 표시만 담당.
+- **서버→클라이언트 시간 동기화**: 서버가 `question:start`, `session:state` 이벤트에 `startedAt`(서버 기준 시작 epoch), `durationMs`, `serverNow`(서버 현재 epoch)를 함께 보냄.
+- **클라이언트 카운트다운 패턴 (핵심)**:
+  1. 이벤트 수신 시 `offset = serverNow - Date.now()` 를 **한 번만** 계산하여 ref에 저장
+  2. `setInterval`(250ms)마다 `estimatedServerNow = Date.now() + offset` 로 현재 서버시간 추정
+  3. `remaining = startedAt + durationMs - estimatedServerNow`
+  4. **절대** `serverNow`를 그대로 ref에 넣고 매 틱마다 재사용하지 말 것 — 고정된 과거 시간이라 remaining이 변하지 않음
+  5. `questionMetaRef` 타입은 `{ startedAt, durationMs, offset }` 여야 함 (`serverNow` 아님)
+- **초기 remaining 계산**도 동일한 공식 사용: `Math.max(0, Math.ceil((startedAt + durationMs - (Date.now() + offset)) / 1000))`
+- **서버 타이머 브로드캐스트**: 서버가 250ms마다 `question:timer` 이벤트로 `remainingSeconds`를 보냄. 클라이언트 로컬 카운트다운이 없을 때만 폴백으로 사용.
+- **관련 파일**:
+  - 서버 타이머: `src/lib/socket/timer.ts` (`SessionTimer` 클래스)
+  - 서버 이벤트 발행: `src/lib/socket/handlers.ts` (startQuestion, emitTimerUpdate)
+  - 학생 훅: `src/hooks/use-quiz.ts` (startLocalCountdown)
+  - 교강사 훅: `src/hooks/use-host-dashboard.ts` (startLocalCountdown)
+  - 타입: `src/lib/socket/types.ts` (QuestionBroadcast.startedAt/durationMs/serverNow)
+
 ## 참조
 
 - 디자인 시스템: `DESIGN.md` (메인 색상 Sky Blue `#3b82f6`, 텍스트 `#222222`)

@@ -42,9 +42,6 @@ Thumbs.db
 # test
 coverage/
 
-# project docs
-docs/
-
 # compiled server
 server.compiled.cjs
 server.compiled.mjs
