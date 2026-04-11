@@ -6,5 +6,5 @@ export async function POST(request: NextRequest) {
   
   // 요청의 Origin 정보를 사용하여 동적으로 리다이렉트 URL 생성
   const origin = request.headers.get("origin") || request.nextUrl.origin;
-  return NextResponse.redirect(new URL("/login", origin));
+  return NextResponse.redirect(new URL("/", origin));
 }
