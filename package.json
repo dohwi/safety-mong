@@ -4,8 +4,8 @@
   "private": true,
   "scripts": {
     "build:server": "esbuild server.ts --outfile=server.compiled.cjs --bundle --platform=node --format=cjs --external:next --external:socket.io --external:better-sqlite3 --alias:@=./src",
-    "dev": "pnpm build:server && node server-entry.cjs",
-    "build": "next build && pnpm build:server",
+    "dev": "pnpm build:server && NODE_OPTIONS='--max-old-space-size=3072' node server-entry.cjs",
+    "build": "NODE_OPTIONS='--max-old-space-size=3072' next build && pnpm build:server",
     "start": "NODE_ENV=production node server-entry.cjs",
     "lint": "eslint",
     "test": "vitest",

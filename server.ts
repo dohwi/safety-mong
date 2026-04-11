@@ -422,10 +422,20 @@ app.prepare().then(() => {
     });
 
     socket.on("disconnect", () => {
-      for (const state of liveSessions.values()) {
+      for (const [sessionId, state] of liveSessions.entries()) {
         const pid = state.socketMap.get(socket.id);
         if (pid) {
           state.socketMap.delete(socket.id);
+          if (state.participants.size === 0 && state.phase === "closed") {
+            liveSessions.delete(sessionId);
+            const timers = sessionTimers.get(sessionId);
+            if (timers) {
+              if (timers.question) clearTimeout(timers.question);
+              if (timers.intermission) clearTimeout(timers.intermission);
+              clearTimerBroadcast(timers);
+              sessionTimers.delete(sessionId);
+            }
+          }
           break;
         }
       }
