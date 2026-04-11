@@ -212,22 +212,7 @@ export function LiveDashboard({
       )}
 
       {state.phase !== "completed" && (
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-          <ParticipantList participants={state.participants} responseCount={state.responseCount} />
-          {state.phase === "waiting" && (
-            <div className="border border-[rgba(0,0,0,0.08)] rounded-2xl p-6 bg-white shadow-sm flex flex-col items-center justify-center text-center space-y-3">
-              <div className="w-12 h-12 rounded-2xl bg-[#F1F3F8] flex items-center justify-center text-[#4F7CFF]">
-                <svg className="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v1m6 11h2m-6 0h-2v4m0-11v3m0 0h.01M12 12h4.01M16 20h4M4 12h4m12 0h.01M5 8h2a1 1 0 001-1V5a1 1 0 011-1h2a1 1 0 011 1v2a1 1 0 001 1h2a1 1 0 001-1V5a1 1 0 011-1h2a1 1 0 011 1v2a1 1 0 001 1h2" />
-                </svg>
-              </div>
-              <div>
-                <h3 className="font-bold text-[#222222]">학생들에게 코드를 공유하세요</h3>
-                <p className="text-sm text-[#6B7280]">상단 QR 코드를 스캔하거나<br/>{sessionCode}를 입력해 입장할 수 있습니다.</p>
-              </div>
-            </div>
-          )}
-        </div>
+        <ParticipantList participants={state.participants} responseCount={state.responseCount} />
       )}
 
       {state.phase === "completed" && state.allQuestionStats.length > 0 && (

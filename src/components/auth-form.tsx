@@ -11,8 +11,8 @@ interface AuthFormProps {
 }
 
 function useFormFields(mode: "login" | "signup") {
-  const [email, setEmail] = useState("");
-  const [password, setPassword] = useState("");
+  const [email, setEmail] = useState(mode === "login" ? "test@teacher.com" : "");
+  const [password, setPassword] = useState(mode === "login" ? "test1234" : "");
   const [prevMode, setPrevMode] = useState(mode);
 
   if (prevMode !== mode) {

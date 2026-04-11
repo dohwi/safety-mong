@@ -3,7 +3,7 @@ import { BrandMascot } from "@/components/brand-mascot";
 
 export default function Home() {
   return (
-    <div className="relative min-h-screen overflow-hidden bg-[#F8F9FB] selection:bg-[#4F7CFF]/30 selection:text-[#4F7CFF]">
+    <div className="relative min-h-screen overflow-hidden bg-[#F1F3F8] selection:bg-[#4F7CFF]/30 selection:text-[#4F7CFF]">
       {/* Background Floating Elements */}
       <div className="absolute inset-0 pointer-events-none overflow-hidden">
         <div className="absolute top-[10%] left-[5%] opacity-20 lab-float-1">
@@ -63,19 +63,16 @@ export default function Home() {
             </p>
           </div>
 
-          <div className="flex flex-col sm:flex-row items-center justify-center gap-4 animate-fade-in-up [animation-delay:200ms]">
+          <div className="animate-fade-in-up [animation-delay:200ms]">
             <Link 
-              href="/signup" 
-              className="w-full sm:w-auto px-8 py-4 bg-[#222222] text-white text-lg font-bold rounded-2xl hover:bg-black transition-all active:scale-95 flex items-center justify-center gap-2"
+              href="/login" 
+              className="w-full sm:w-auto px-8 py-4 bg-[#222222] text-white text-lg font-bold rounded-2xl hover:bg-black transition-all active:scale-95 inline-flex items-center justify-center gap-2"
             >
               지금 무료로 시작하기
               <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M13 7l5 5m0 0l-5 5m5-5H6" />
               </svg>
             </Link>
-            <div className="text-sm font-medium text-[#9CA3AF]">
-              학생은 교강사가 공유한 QR 코드로 바로 접속하세요
-            </div>
           </div>
         </div>
       </section>
