@@ -34,7 +34,7 @@ export function JoinForm({ sessionId }: { sessionId: number }) {
       />
       {error && <p className="text-sm text-[#EF4444]">{error}</p>}
       <button type="submit" disabled={loading || !nickname.trim()}
-        className="w-full py-3 bg-[#4F7CFF] text-white font-medium rounded-xl hover:bg-[#6B91FF] transition-all duration-200 hover:shadow-[0_4px_16px_rgba(79,124,255,0.25)] active:scale-[0.98] disabled:opacity-50"
+        className="w-full py-3 bg-[#4F7CFF] text-white font-medium rounded-xl hover:bg-[#6B91FF] transition-all duration-200 active:scale-[0.98] disabled:opacity-50"
       >
         {loading ? "참여 중..." : "참여하기"}
       </button>

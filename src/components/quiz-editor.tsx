@@ -150,7 +150,7 @@ export function QuizEditor({ initialData, topic, onSave, saving }: QuizEditorPro
           <button
             type="button"
             onClick={openAddQuestionModal}
-            className="inline-flex h-11 items-center justify-center rounded-xl bg-[#4F7CFF] px-5 text-sm font-medium text-white transition-all duration-200 hover:bg-[#6B91FF] hover:shadow-[0_4px_16px_rgba(79,124,255,0.25)] active:scale-[0.98]"
+            className="inline-flex h-11 items-center justify-center rounded-xl bg-[#4F7CFF] px-5 text-sm font-medium text-white transition-all duration-200 hover:bg-[#6B91FF] active:scale-[0.98]"
           >
             문제 직접 추가
           </button>
@@ -159,7 +159,7 @@ export function QuizEditor({ initialData, topic, onSave, saving }: QuizEditorPro
         {questionList.map((q, qi) => (
           <div
             key={qi}
-            className="space-y-4 rounded-[24px] border border-[rgba(0,0,0,0.08)] bg-white p-5 shadow-sm transition-all duration-200 hover:shadow-[0_8px_24px_rgba(79,124,255,0.1)]"
+            className="space-y-4 rounded-[24px] border border-[rgba(0,0,0,0.08)] bg-white p-5 shadow-sm transition-all duration-200"
           >
             <div className="flex items-center justify-between">
               <span className="text-sm font-medium text-[#6B7280]">
@@ -316,7 +316,7 @@ export function QuizEditor({ initialData, topic, onSave, saving }: QuizEditorPro
                 type="button"
                 onClick={addQuestion}
                 disabled={!isNewQuestionValid}
-                className="w-full rounded-xl bg-[#4F7CFF] py-3 text-sm font-medium text-white transition-all duration-200 hover:bg-[#6B91FF] hover:shadow-[0_4px_16px_rgba(79,124,255,0.25)] active:scale-[0.98] disabled:cursor-not-allowed disabled:opacity-50"
+                className="w-full rounded-xl bg-[#4F7CFF] py-3 text-sm font-medium text-white transition-all duration-200 hover:bg-[#6B91FF] active:scale-[0.98] disabled:cursor-not-allowed disabled:opacity-50"
               >
                 문제 추가
               </button>
@@ -328,7 +328,7 @@ export function QuizEditor({ initialData, topic, onSave, saving }: QuizEditorPro
       <button
         onClick={handleSubmit}
         disabled={saving || !checklistComplete || questionList.length === 0}
-        className="w-full rounded-xl bg-[#4F7CFF] py-3 text-base font-medium text-white transition-all duration-200 hover:bg-[#6B91FF] hover:shadow-[0_4px_16px_rgba(79,124,255,0.25)] active:scale-[0.98] disabled:cursor-not-allowed disabled:opacity-50"
+        className="w-full rounded-xl bg-[#4F7CFF] py-3 text-base font-medium text-white transition-all duration-200 hover:bg-[#6B91FF] active:scale-[0.98] disabled:cursor-not-allowed disabled:opacity-50"
       >
         {saving ? "저장 중..." : "퀴즈 저장하기"}
       </button>

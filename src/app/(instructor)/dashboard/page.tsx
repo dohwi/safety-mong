@@ -21,7 +21,7 @@ export default async function DashboardPage() {
           <h1 className="text-3xl font-black text-[#222222] tracking-tight">내 퀴즈 보관함</h1>
           <p className="mt-2 text-[#6B7280] font-medium">관리 중인 실험 안전 퀴즈 {boxes.length}개를 확인하세요.</p>
         </div>
-        <Link href="/quiz-boxes/new" className="inline-flex items-center justify-center px-6 py-3.5 bg-[#4F7CFF] text-white font-bold rounded-2xl hover:bg-[#6B91FF] transition-all duration-300 hover:shadow-[0_8px_24px_rgba(79,124,255,0.25)] hover:translate-y-[-2px] active:scale-[0.98] active:translate-y-0 gap-2 group">
+        <Link href="/quiz-boxes/new" className="inline-flex items-center justify-center px-6 py-3.5 bg-[#4F7CFF] text-white font-bold rounded-2xl hover:bg-[#6B91FF] transition-all duration-300 active:scale-[0.98] active:translate-y-0 gap-2 group">
           <svg className="w-5 h-5 transition-transform duration-300 group-hover:rotate-90" fill="none" viewBox="0 0 24 24" stroke="currentColor">
             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M12 4v16m8-8H4" />
           </svg>

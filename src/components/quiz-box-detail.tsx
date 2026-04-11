@@ -32,7 +32,7 @@ const emptyForm = (): NewQuestionForm => ({
   category: "",
 });
 
-const inputClass = "w-full rounded-[16px] border border-[rgba(0,0,0,0.08)] bg-white px-4 py-3 text-sm text-[#222222] placeholder-[#9CA3AF] outline-none transition-all duration-200 hover:border-[rgba(0,0,0,0.15)] focus:border-[rgba(79,124,255,0.5)] focus:ring-2 focus:ring-[rgba(79,124,255,0.15)]";
+const inputClass = "w-full rounded-[16px] border border-[rgba(0,0,0,0.08)] bg-white px-4 py-3 text-sm text-[#222222] placeholder-[#9CA3AF] outline-none transition-all duration-200 hover:border-[rgba(0,0,0,0.15)] focus:border-[rgba(79,124,255,0.5)] focus:ring-2 focus:ring-[rgba(79,124,255,0.15)] [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none";
 
 export function QuizBoxDetail({ box, questions: questionList, isEditable, activeSessionId, activeSessionCode }: { box: QuizBox; questions: Question[]; isEditable: boolean; activeSessionId: number | null; activeSessionCode: string | null }) {
   const router = useRouter();
@@ -135,10 +135,10 @@ export function QuizBoxDetail({ box, questions: questionList, isEditable, active
 
   return (
     <div className="max-w-5xl mx-auto space-y-6">
-      <div className="rounded-[32px] border border-[rgba(0,0,0,0.08)] bg-white p-6 sm:p-8 shadow-sm">
+      <div className="rounded-[28px] border border-[rgba(0,0,0,0.06)] bg-white p-6 sm:p-7 shadow-sm">
         <div className="flex flex-col gap-5 md:flex-row md:items-center md:justify-between">
           <div className="flex items-center gap-4">
-            <Link href="/dashboard" className="flex h-12 w-12 items-center justify-center rounded-2xl bg-[#F8F9FB] text-[#6B7280] transition-all hover:bg-[#F1F3F8] hover:text-[#222222]">
+            <Link href="/dashboard" className="flex h-11 w-11 items-center justify-center rounded-xl bg-[#F8F9FB] text-[#6B7280] transition-all hover:bg-[#F1F3F8] hover:text-[#222222]">
               <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M15 19l-7-7 7-7" />
               </svg>
@@ -146,21 +146,21 @@ export function QuizBoxDetail({ box, questions: questionList, isEditable, active
             <div>
               <div className="flex items-center gap-2">
                 <span className="text-2xl">{box.icon}</span>
-                <h1 className="text-2xl font-bold tracking-[-0.44px] text-[#222222]">{box.title}</h1>
+                <h1 className="text-2xl font-bold tracking-tight text-[#222222]">{box.title}</h1>
               </div>
-              <p className="mt-1 text-sm text-[#6B7280]">내 보관함의 퀴즈를 관리하고 세션을 시작하세요.</p>
+              <p className="mt-1 text-sm font-medium text-[#6B7280]">실험 안전 퀴즈 관리 및 세션 시작</p>
             </div>
           </div>
           <div className="flex items-center gap-2">
             <Link
               href={`/quiz-boxes/${box.id}/sessions`}
-              className="inline-flex h-11 items-center justify-center rounded-xl border border-[rgba(0,0,0,0.08)] bg-white px-4 text-sm font-medium text-[#6B7280] transition-all duration-200 hover:bg-[#F8F9FB] hover:text-[#222222]"
+              className="inline-flex h-11 items-center justify-center rounded-xl border border-[rgba(0,0,0,0.08)] bg-white px-5 text-sm font-bold text-[#6B7280] transition-all duration-200 hover:bg-[#F8F9FB] hover:text-[#222222]"
             >
               세션 기록
             </Link>
             <button
               onClick={handleDelete}
-              className="inline-flex h-11 items-center justify-center rounded-xl border border-[rgba(239,68,68,0.1)] bg-white px-4 text-sm font-medium text-[#EF4444] transition-all duration-200 hover:bg-[#FEF2F2]"
+              className="inline-flex h-11 items-center justify-center rounded-xl border border-[rgba(239,68,68,0.1)] bg-white px-5 text-sm font-bold text-[#EF4444] transition-all duration-200 hover:bg-[#FEF2F2]"
             >
               삭제
             </button>
@@ -225,7 +225,7 @@ export function QuizBoxDetail({ box, questions: questionList, isEditable, active
               {isEditable && (
                 <button
                   onClick={() => { setShowAddForm(true); setNewQ(emptyForm()); }}
-                  className="inline-flex h-11 items-center justify-center rounded-xl bg-[#4F7CFF] px-5 text-sm font-medium text-white transition-all duration-200 hover:bg-[#6B91FF] hover:shadow-[0_4px_16px_rgba(79,124,255,0.25)] active:scale-[0.98]"
+                  className="inline-flex h-11 items-center justify-center rounded-xl bg-[#4F7CFF] px-5 text-sm font-medium text-white transition-all duration-200 hover:bg-[#6B91FF] active:scale-[0.98]"
                 >
                   문제 직접 추가
                 </button>
@@ -234,7 +234,7 @@ export function QuizBoxDetail({ box, questions: questionList, isEditable, active
 
             <div className="grid grid-cols-1 gap-6">
               {questionList.map((q, i) => (
-                <div key={q.id} className="space-y-4 rounded-[24px] border border-[rgba(0,0,0,0.08)] bg-white p-5 shadow-sm transition-all duration-200 hover:shadow-[0_8px_24px_rgba(79,124,255,0.1)]">
+                <div key={q.id} className="space-y-4 rounded-[24px] border border-[rgba(0,0,0,0.08)] bg-white p-5 shadow-sm transition-all duration-200">
                   <div className="flex items-center justify-between">
                     <span className="text-sm font-medium text-[#6B7280]">
                       문제 {i + 1}
@@ -351,7 +351,7 @@ export function QuizBoxDetail({ box, questions: questionList, isEditable, active
                 <button
                   onClick={handleStartSession}
                   disabled={startingSession}
-                  className="w-full rounded-xl bg-[#4F7CFF] py-4 text-sm font-bold text-white transition-all hover:bg-[#6B91FF] hover:shadow-[0_4px_16px_rgba(79,124,255,0.25)] active:scale-[0.98] disabled:opacity-50"
+                  className="w-full rounded-xl bg-[#4F7CFF] py-4 text-sm font-bold text-white transition-all hover:bg-[#6B91FF] active:scale-[0.98] disabled:opacity-50"
                 >
                   {startingSession ? "준비 중..." : "퀴즈 세션 시작"}
                 </button>
@@ -452,7 +452,7 @@ export function QuizBoxDetail({ box, questions: questionList, isEditable, active
                 type="button"
                 onClick={handleAddQuestion}
                 disabled={addingQuestion || !isFormValid}
-                className="w-full rounded-xl bg-[#4F7CFF] py-3 text-sm font-medium text-white transition-all duration-200 hover:bg-[#6B91FF] hover:shadow-[0_4px_16px_rgba(79,124,255,0.25)] active:scale-[0.98] disabled:cursor-not-allowed disabled:opacity-50"
+                className="w-full rounded-xl bg-[#4F7CFF] py-3 text-sm font-medium text-white transition-all duration-200 hover:bg-[#6B91FF] active:scale-[0.98] disabled:cursor-not-allowed disabled:opacity-50"
               >
                 {addingQuestion ? "저장 중..." : editingQuestionId ? "수정 완료" : "문제 저장"}
               </button>

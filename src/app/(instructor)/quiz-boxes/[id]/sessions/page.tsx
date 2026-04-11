@@ -53,92 +53,137 @@ export default async function SessionsPage({ params }: { params: Promise<{ id: s
   const closedSessions = sessionList.filter((s) => pastPhases.includes(s.phase) && !(s.phase === "completed" && s.aiAnalysis));
 
   return (
-    <div className="max-w-3xl mx-auto px-4 py-8 space-y-6">
-      <div className="flex items-center justify-between">
-        <div>
-          <Link href={`/quiz-boxes/${quizBoxId}`} className="text-sm text-[#4F7CFF] hover:underline">← 퀴즈함으로</Link>
-          <h1 className="text-2xl font-bold text-[#222222] mt-2">{box.title} - 세션 기록</h1>
+    <div className="max-w-5xl mx-auto space-y-6">
+      <div className="rounded-[28px] border border-[rgba(0,0,0,0.06)] bg-white p-5 sm:p-6 shadow-sm">
+        <div className="flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
+          <div className="flex items-center gap-4">
+            <Link href={`/quiz-boxes/${quizBoxId}`} className="flex h-10 w-10 items-center justify-center rounded-xl bg-[#F8F9FB] text-[#6B7280] transition-all hover:bg-[#F1F3F8] hover:text-[#222222]">
+              <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M15 19l-7-7 7-7" />
+              </svg>
+            </Link>
+            <div>
+              <div className="flex items-center gap-2">
+                <span className="text-xl">{box.icon}</span>
+                <h1 className="text-xl font-bold tracking-tight text-[#222222]">{box.title}</h1>
+              </div>
+              <p className="text-xs font-medium text-[#9CA3AF]">세션 기록 히스토리</p>
+            </div>
+          </div>
+          <Link
+            href={`/quiz-boxes/${quizBoxId}`}
+            className="inline-flex h-10 items-center justify-center rounded-xl bg-[#4F7CFF] px-5 text-sm font-bold text-white transition-all duration-200 hover:bg-[#6B91FF]"
+          >
+            새 세션 시작
+          </Link>
         </div>
-        <Link
-          href={`/quiz-boxes/${quizBoxId}`}
-          className="px-4 py-2 bg-[#4F7CFF] text-white text-sm font-medium rounded-xl hover:bg-[#6B91FF] transition-all duration-200 hover:shadow-[0_4px_16px_rgba(79,124,255,0.25)]"
-        >
-          새 세션
-        </Link>
       </div>
 
-      {activeSessions.length > 0 && (
-        <div className="space-y-3">
-          <h2 className="text-lg font-semibold text-[#222222]">진행 중</h2>
-          {activeSessions.map((s) => {
-            const pCount = db.select().from(participants)
-              .where(eq(participants.sessionId, s.id))
-              .all().length;
-            return (
-              <Link
-                key={s.id}
-                href={`/quiz-boxes/${quizBoxId}/sessions/${s.id}/host`}
-                className="block border-2 border-[rgba(79,124,255,0.4)] rounded-2xl p-5 bg-white hover:bg-[#F8F9FB] hover:border-[rgba(79,124,255,0.6)] transition-all duration-200 hover:shadow-[0_8px_24px_rgba(79,124,255,0.15)] hover:scale-[1.02] active:scale-[0.98]"
-              >
-                <div className="flex items-center justify-between">
-                  <div>
-                    <p className="text-sm text-[#6B7280]">
-                      {new Date(s.createdAt).toLocaleString("ko-KR")}
-                    </p>
-                    <p className="text-sm text-[#222222] mt-1">참여자 {pCount}명</p>
-                  </div>
-                  <span className="text-xs px-3 py-1 bg-[#4F7CFF] text-white rounded-full font-medium">
-                    {phaseLabel[s.phase] || s.phase}
-                  </span>
-                </div>
-              </Link>
-            );
-          })}
-        </div>
-      )}
+      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+        <div className="lg:col-span-2 space-y-6">
+          {activeSessions.length > 0 && (
+            <section className="space-y-3">
+              <h2 className="text-lg font-bold text-[#222222] flex items-center gap-2">
+                <span className="w-2 h-2 rounded-full bg-[#4F7CFF] animate-pulse" />
+                진행 중인 세션
+              </h2>
+              {activeSessions.map((s) => {
+                const pCount = db.select().from(participants)
+                  .where(eq(participants.sessionId, s.id))
+                  .all().length;
+                return (
+                  <Link
+                    key={s.id}
+                    href={`/quiz-boxes/${quizBoxId}/sessions/${s.id}/host`}
+                    className="block border border-[rgba(79,124,255,0.2)] rounded-[24px] p-5 bg-white hover:border-[#4F7CFF] transition-all duration-200"
+                  >
+                    <div className="flex items-center justify-between">
+                      <div className="space-y-1">
+                        <p className="text-xs font-bold text-[#4F7CFF] uppercase tracking-wider">Live Session</p>
+                        <p className="text-sm font-bold text-[#222222]">
+                          {new Date(s.createdAt).toLocaleString("ko-KR")}
+                        </p>
+                        <p className="text-xs font-medium text-[#6B7280]">현재 참여자 {pCount}명</p>
+                      </div>
+                      <div className="flex flex-col items-end gap-2">
+                        <span className="text-[10px] px-2 py-0.5 bg-[#4F7CFF] text-white rounded-md font-black uppercase">
+                          {phaseLabel[s.phase] || s.phase}
+                        </span>
+                        <div className="w-8 h-8 rounded-full bg-[#F1F3F8] flex items-center justify-center text-[#4F7CFF]">
+                          <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M9 5l7 7-7 7" />
+                          </svg>
+                        </div>
+                      </div>
+                    </div>
+                  </Link>
+                );
+              })}
+            </section>
+          )}
 
-      {analysisSessions.length > 0 && (
-        <div className="space-y-3">
-          <h2 className="text-lg font-semibold text-[#222222]">분석 리포트</h2>
-          {analysisSessions.map((s) => {
-            const pCount = db.select().from(participants)
-              .where(eq(participants.sessionId, s.id))
-              .all().length;
-            return (
-              <Link
-                key={s.id}
-                href={`/quiz-boxes/${quizBoxId}/sessions/${s.id}/analysis`}
-                className="block border-2 border-[rgba(124,92,255,0.4)] rounded-2xl p-5 bg-white hover:bg-[#F8F9FB] hover:border-[rgba(124,92,255,0.6)] transition-all duration-200 hover:shadow-[0_8px_24px_rgba(124,92,255,0.15)] hover:scale-[1.02] active:scale-[0.98]"
-              >
-                <div className="flex items-center justify-between">
-                  <div>
-                    <p className="text-sm text-[#6B7280]">
-                      {new Date(s.createdAt).toLocaleString("ko-KR")}
-                    </p>
-                    <p className="text-sm text-[#222222] mt-1">참여자 {pCount}명</p>
-                  </div>
-                  <span className={`text-xs px-3 py-1 rounded-full font-medium ${phaseColors[s.phase] || "bg-[#F1F3F8] text-[#6B7280]"}`}>
-                    {phaseLabel[s.phase] || s.phase}
-                  </span>
-                </div>
-              </Link>
-            );
-          })}
+          <section className="space-y-3">
+            <h2 className="text-lg font-bold text-[#222222]">세션 리포트 및 기록</h2>
+            {analysisSessions.length > 0 || closedSessions.length > 0 ? (
+              <div className="grid grid-cols-1 gap-4">
+                {analysisSessions.map((s) => {
+                  const pCount = db.select().from(participants)
+                    .where(eq(participants.sessionId, s.id))
+                    .all().length;
+                  return (
+                    <Link
+                      key={s.id}
+                      href={`/quiz-boxes/${quizBoxId}/sessions/${s.id}/analysis`}
+                      className="block border border-[rgba(0,0,0,0.06)] rounded-[24px] p-5 bg-white hover:border-[#4F7CFF] transition-all duration-200 group"
+                    >
+                      <div className="flex items-center justify-between">
+                        <div className="space-y-1">
+                          <p className="text-xs font-bold text-[#7C5CFF] uppercase tracking-wider">Analysis Report</p>
+                          <p className="text-sm font-bold text-[#222222]">
+                            {new Date(s.createdAt).toLocaleString("ko-KR")}
+                          </p>
+                          <p className="text-xs font-medium text-[#6B7280]">참여자 {pCount}명 분석 완료</p>
+                        </div>
+                        <div className="w-10 h-10 rounded-xl bg-[#F8F9FB] flex items-center justify-center text-[#7C5CFF] group-hover:bg-[#7C5CFF] group-hover:text-white transition-all">
+                          <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z" />
+                          </svg>
+                        </div>
+                      </div>
+                    </Link>
+                  );
+                })}
+                {closedSessions.map((s) => (
+                  <SessionRecordCard key={s.id} session={s} quizBoxId={quizBoxId} />
+                ))}
+              </div>
+            ) : (
+              <div className="rounded-[24px] border border-dashed border-[rgba(0,0,0,0.08)] p-12 text-center">
+                <p className="text-sm font-medium text-[#9CA3AF]">아직 완료된 세션 기록이 없습니다.</p>
+              </div>
+            )}
+          </section>
         </div>
-      )}
 
-      {closedSessions.length > 0 && (
-        <div className="space-y-3">
-          <h2 className="text-lg font-semibold text-[#222222]">종료된 세션</h2>
-          {closedSessions.map((s) => (
-            <SessionRecordCard key={s.id} session={s} quizBoxId={quizBoxId} />
-          ))}
-        </div>
-      )}
-
-      {sessionList.length === 0 && (
-        <EmptySessions quizBoxId={quizBoxId} />
-      )}
+        <aside className="lg:col-span-1">
+          <div className="sticky top-6 rounded-[24px] border border-[rgba(0,0,0,0.06)] bg-white p-6 shadow-sm space-y-4">
+            <h3 className="text-sm font-bold text-[#222222]">통계 요약</h3>
+            <div className="grid grid-cols-2 gap-3">
+              <div className="p-4 rounded-2xl bg-[#F8F9FB] border border-[rgba(0,0,0,0.04)]">
+                <p className="text-[10px] font-bold text-[#6B7280] uppercase">Total</p>
+                <p className="text-xl font-black text-[#222222]">{sessionList.length}</p>
+              </div>
+              <div className="p-4 rounded-2xl bg-[#4F7CFF]/5 border border-[rgba(79,124,255,0.1)]">
+                <p className="text-[10px] font-bold text-[#4F7CFF] uppercase">Active</p>
+                <p className="text-xl font-black text-[#4F7CFF]">{activeSessions.length}</p>
+              </div>
+            </div>
+            <p className="text-xs text-[#6B7280] leading-relaxed font-medium">
+              모든 세션 기록은 이곳에서 관리됩니다. 분석 리포트가 생성된 세션은 리포트 아이콘을 클릭하여 상세 내용을 확인할 수 있습니다.
+            </p>
+          </div>
+        </aside>
+      </div>
     </div>
   );
 }

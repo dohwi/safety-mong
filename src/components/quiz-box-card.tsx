@@ -8,7 +8,7 @@ export function QuizBoxCard({ box }: { box: QuizBox }) {
   return (
     <Link
       href={`/quiz-boxes/${box.id}`}
-      className="group relative block p-7 border-2 border-[#4F7CFF]/10 rounded-[24px] bg-white transition-colors duration-200 hover:border-[#4F7CFF] hover:bg-[#F8F9FB]/30 active:scale-[0.98] overflow-hidden"
+      className="group relative block p-7 border-2 border-[#4F7CFF]/10 rounded-[24px] bg-white transition-all duration-150 hover:border-[#4F7CFF] overflow-hidden"
     >
       <div className="absolute top-0 right-0 p-6 opacity-0 group-hover:opacity-5 transition-opacity">
         <svg className="w-16 h-16 text-[#4F7CFF]" fill="none" viewBox="0 0 24 24" stroke="currentColor">

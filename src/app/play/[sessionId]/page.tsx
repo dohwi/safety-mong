@@ -59,7 +59,7 @@ function PlayContent({ sessionId }: { sessionId: number }) {
             <p className="font-semibold">참여 오류</p>
             <p className="mt-1 text-sm">{joinError}</p>
           </div>
-          <Link href="/" className="mt-4 inline-block rounded-xl bg-[#4F7CFF] px-6 py-2 text-white hover:bg-[#6B91FF] transition-all duration-200 hover:shadow-[0_4px_16px_rgba(79,124,255,0.25)]">홈으로</Link>
+          <Link href="/" className="mt-4 inline-block rounded-xl bg-[#4F7CFF] px-6 py-2 text-white hover:bg-[#6B91FF] transition-all duration-200">홈으로</Link>
         </div>
       </div>
     );

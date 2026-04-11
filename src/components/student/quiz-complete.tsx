@@ -40,7 +40,7 @@ export function QuizComplete({
         <h3 className="text-left text-lg font-semibold text-[#222222]">오답 다시 보기</h3>
         {wrongItems.length > 0 ? (
           wrongItems.map((item) => (
-            <div key={item.questionIndex} className="rounded-3xl border border-[rgba(245,158,11,0.15)] bg-white p-4 shadow-sm transition-all duration-200 hover:shadow-[0_8px_24px_rgba(245,158,11,0.1)]">
+            <div key={item.questionIndex} className="rounded-3xl border border-[rgba(245,158,11,0.15)] bg-white p-4 shadow-sm transition-all duration-200">
               <div className="rounded-2xl border border-[rgba(245,158,11,0.15)] bg-[rgba(245,158,11,0.06)] px-4 py-3 text-left text-[#F59E0B]">
                 <p className="text-xs font-semibold">실험몽 복습 노트</p>
                 <p className="mt-1 text-sm font-medium text-[#222222]">문제 {item.questionIndex + 1}. {item.questionText}</p>

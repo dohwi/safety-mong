@@ -42,16 +42,16 @@ export function QuizGenerator({
   }
 
   return (
-    <div className="mx-auto max-w-3xl space-y-6">
-      <div className="rounded-[32px] border border-[rgba(0,0,0,0.08)] bg-white p-6 sm:p-8 shadow-sm">
+    <div className="mx-auto max-w-4xl space-y-6">
+      <div className="rounded-[28px] border border-[rgba(0,0,0,0.06)] bg-white p-6 sm:p-7 shadow-sm">
         <div className="flex flex-col gap-6 sm:flex-row sm:items-center sm:justify-between">
           <div className="max-w-xl">
-            <p className="text-sm font-medium text-[#4F7CFF]">AI 퀴즈 생성</p>
-            <h1 className="mt-2 text-[28px] font-bold tracking-[-0.44px] text-[#222222]">실험 주제를 넣으면 실험몽이 바로 퀴즈 초안을 만듭니다</h1>
-            <p className="mt-3 text-sm leading-6 text-[#6B7280]">핵심 안전수칙, 헷갈리기 쉬운 선택지, 해설까지 한 번에 만들고 바로 수정할 수 있습니다.</p>
+            <p className="text-sm font-bold text-[#4F7CFF]">AI 퀴즈 생성</p>
+            <h1 className="mt-2 text-[26px] font-bold tracking-tight text-[#222222]">실험 주제를 입력하면 AI가 퀴즈 초안을 생성합니다</h1>
+            <p className="mt-2 text-sm font-medium leading-relaxed text-[#6B7280]">핵심 안전수칙, 헷갈리기 쉬운 선택지, 해설까지 한 번에 구성됩니다.</p>
           </div>
-          <div className="flex h-28 w-28 items-center justify-center self-center rounded-full bg-[#F8F9FB] sm:self-auto">
-            <BrandMascot variant="experiment" size={132} className="h-auto w-24 drop-shadow-sm" priority />
+          <div className="flex h-24 w-24 items-center justify-center self-center rounded-3xl bg-[#F8F9FB] sm:self-auto">
+            <BrandMascot variant="experiment" size={100} className="h-auto w-20 drop-shadow-sm" priority />
           </div>
         </div>
 
@@ -74,7 +74,7 @@ export function QuizGenerator({
               <button
                 type="submit"
                 disabled={loading || !topic.trim()}
-                className="inline-flex h-12 items-center justify-center rounded-xl bg-[#4F7CFF] px-6 text-base font-medium text-white transition-all duration-200 hover:bg-[#6B91FF] hover:shadow-[0_4px_16px_rgba(79,124,255,0.25)] active:scale-[0.98] disabled:cursor-not-allowed disabled:opacity-50"
+                className="inline-flex h-12 items-center justify-center rounded-xl bg-[#4F7CFF] px-6 text-base font-medium text-white transition-all duration-200 hover:bg-[#6B91FF] active:scale-[0.98] disabled:cursor-not-allowed disabled:opacity-50"
               >
                 {loading ? "실험몽이 생성 중..." : "퀴즈 생성하기"}
               </button>
@@ -90,18 +90,18 @@ export function QuizGenerator({
       )}
 
       {loading && (
-        <div className="overflow-hidden rounded-[32px] border border-[rgba(0,0,0,0.08)] bg-white p-6 sm:p-8 shadow-sm">
+        <div className="overflow-hidden rounded-[28px] border border-[rgba(0,0,0,0.06)] bg-white p-6 sm:p-7 shadow-sm">
           <div className="flex flex-col gap-5 sm:flex-row sm:items-center">
             <div className="relative mx-auto sm:mx-0">
-              <div className="absolute inset-0 animate-ping rounded-full bg-[rgba(79,124,255,0.15)]" />
-              <div className="relative flex h-24 w-24 items-center justify-center rounded-full bg-[#F1F3F8]">
-                <BrandMascot variant="experiment" size={120} className="h-auto w-20 animate-pulse drop-shadow-sm" />
+              <div className="absolute inset-0 animate-ping rounded-full bg-[rgba(79,124,255,0.1)]" />
+              <div className="relative flex h-20 w-20 items-center justify-center rounded-3xl bg-[#F1F3F8]">
+                <BrandMascot variant="experiment" size={80} className="h-auto w-16 animate-pulse drop-shadow-sm" />
               </div>
             </div>
-            <div className="flex-1 rounded-[28px] border border-[rgba(0,0,0,0.06)] bg-[#F8F9FB] px-5 py-5 text-left">
-              <p className="text-xs font-semibold text-[#4F7CFF]">실험몽 생성 중</p>
-              <p className="mt-1 text-[22px] font-semibold tracking-[-0.44px] text-[#222222]">실험 주제를 검토하고 안전 퀴즈로 바꾸는 중입니다</p>
-              <p className="mt-2 text-sm leading-6 text-[#6B7280]">실험 절차를 읽고 위험 요소를 정리한 뒤, 오답 유도 선택지와 해설까지 함께 구성하고 있습니다.</p>
+            <div className="flex-1 rounded-[24px] border border-[rgba(0,0,0,0.04)] bg-[#F8F9FB] px-5 py-5 text-left">
+              <p className="text-xs font-bold text-[#4F7CFF]">AI가 분석 중</p>
+              <p className="mt-1 text-[20px] font-bold tracking-tight text-[#222222]">실험 주제를 검토하고 안전 퀴즈로 구성하고 있습니다</p>
+              <p className="mt-2 text-sm font-medium leading-relaxed text-[#6B7280]">위험 요소를 분석하고, 오답 유도 선택지와 해설을 함께 생성합니다.</p>
             </div>
           </div>
 

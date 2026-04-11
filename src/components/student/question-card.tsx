@@ -50,7 +50,7 @@ export function QuestionCard({ question, selectedIndex, remainingSeconds, onSubm
             className={`group relative text-left p-5 sm:p-6 rounded-3xl border-2 transition-all duration-300 min-h-[80px] sm:min-h-[100px] flex items-center gap-4 ${
               selectedIndex === i
                 ? "border-[#4F7CFF] bg-[#4F7CFF]/5 text-[#222222] shadow-[0_12px_32px_rgba(79,124,255,0.2)] scale-[1.04] z-10"
-                : "border-[rgba(0,0,0,0.06)] bg-white/60 text-[#222222] hover:border-[#4F7CFF]/40 hover:bg-white hover:shadow-[0_8px_24px_rgba(0,0,0,0.06)] hover:translate-y-[-2px] active:scale-[0.98] active:translate-y-0"
+                : "border-[rgba(0,0,0,0.06)] bg-white/60 text-[#222222] hover:border-[#4F7CFF]/40 hover:bg-white active:scale-[0.98] active:translate-y-0"
             } disabled:cursor-default disabled:opacity-80 disabled:translate-y-0`}
           >
             <div className={`flex items-center justify-center w-10 h-10 rounded-2xl text-lg font-black shrink-0 transition-colors ${

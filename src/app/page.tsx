@@ -36,7 +36,7 @@ export default function Home() {
             </Link>
             <Link 
               href="/signup" 
-              className="px-5 py-2.5 bg-[#4F7CFF] text-white text-sm font-bold rounded-xl hover:bg-[#6B91FF] hover:shadow-lg hover:shadow-[#4F7CFF]/20 transition-all active:scale-95"
+              className="px-5 py-2.5 bg-[#4F7CFF] text-white text-sm font-bold rounded-xl hover:bg-[#6B91FF]/20 transition-all active:scale-95"
             >
               시작하기
             </Link>
@@ -66,7 +66,7 @@ export default function Home() {
           <div className="flex flex-col sm:flex-row items-center justify-center gap-4 animate-fade-in-up [animation-delay:200ms]">
             <Link 
               href="/signup" 
-              className="w-full sm:w-auto px-8 py-4 bg-[#222222] text-white text-lg font-bold rounded-2xl hover:bg-black hover:shadow-xl transition-all active:scale-95 flex items-center justify-center gap-2"
+              className="w-full sm:w-auto px-8 py-4 bg-[#222222] text-white text-lg font-bold rounded-2xl hover:bg-black transition-all active:scale-95 flex items-center justify-center gap-2"
             >
               지금 무료로 시작하기
               <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -83,7 +83,7 @@ export default function Home() {
       {/* Feature Grid */}
       <section className="max-w-6xl mx-auto px-6 py-20">
         <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-          <div className="group p-8 bg-white rounded-[2.5rem] border border-[rgba(0,0,0,0.04)] shadow-sm hover:shadow-xl transition-all duration-300 animate-fade-in-up [animation-delay:300ms]">
+          <div className="group p-8 bg-white rounded-[2.5rem] border border-[rgba(0,0,0,0.04)] shadow-sm transition-all duration-300 animate-fade-in-up [animation-delay:300ms]">
             <div className="w-14 h-14 bg-[#4F7CFF]/10 rounded-2xl flex items-center justify-center text-[#4F7CFF] mb-6 group-hover:scale-110 transition-transform">
               <svg className="w-7 h-7" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 10V3L4 14h7v7l9-11h-7z" />
@@ -95,7 +95,7 @@ export default function Home() {
             </p>
           </div>
 
-          <div className="group p-8 bg-white rounded-[2.5rem] border border-[rgba(0,0,0,0.04)] shadow-sm hover:shadow-xl transition-all duration-300 animate-fade-in-up [animation-delay:400ms]">
+          <div className="group p-8 bg-white rounded-[2.5rem] border border-[rgba(0,0,0,0.04)] shadow-sm transition-all duration-300 animate-fade-in-up [animation-delay:400ms]">
             <div className="w-14 h-14 bg-[#7C5CFF]/10 rounded-2xl flex items-center justify-center text-[#7C5CFF] mb-6 group-hover:scale-110 transition-transform">
               <svg className="w-7 h-7" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
@@ -107,7 +107,7 @@ export default function Home() {
             </p>
           </div>
 
-          <div className="group p-8 bg-white rounded-[2.5rem] border border-[rgba(0,0,0,0.04)] shadow-sm hover:shadow-xl transition-all duration-300 animate-fade-in-up [animation-delay:500ms]">
+          <div className="group p-8 bg-white rounded-[2.5rem] border border-[rgba(0,0,0,0.04)] shadow-sm transition-all duration-300 animate-fade-in-up [animation-delay:500ms]">
             <div className="w-14 h-14 bg-[#5EE6D6]/10 rounded-2xl flex items-center justify-center text-[#0D9488] mb-6 group-hover:scale-110 transition-transform">
               <svg className="w-7 h-7" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 002 2h2a2 2 0 002-2z" />

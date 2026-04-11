@@ -87,7 +87,7 @@ export function AuthForm({ action, mode }: AuthFormProps) {
       <button
         type="submit"
         disabled={pending}
-        className="w-full py-2.5 bg-[#4F7CFF] text-white font-medium rounded-xl hover:bg-[#6B91FF] transition-all duration-200 hover:shadow-[0_4px_16px_rgba(79,124,255,0.25)] active:scale-[0.98] disabled:opacity-50 disabled:cursor-not-allowed"
+        className="w-full py-2.5 bg-[#4F7CFF] text-white font-medium rounded-xl hover:bg-[#6B91FF] transition-all duration-200 active:scale-[0.98] disabled:opacity-50 disabled:cursor-not-allowed"
       >
         {pending ? "처리 중..." : mode === "login" ? "로그인" : "회원가입"}
       </button>

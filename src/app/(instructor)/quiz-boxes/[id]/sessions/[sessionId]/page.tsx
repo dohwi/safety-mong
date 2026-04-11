@@ -76,7 +76,7 @@ export default async function SessionDetailPage({
           const rate = qAnswers.length > 0 ? Math.round((correct / qAnswers.length) * 100) : 0;
 
           return (
-            <div key={q.id} className="border border-[rgba(0,0,0,0.08)] rounded-xl p-4 bg-white shadow-sm transition-all duration-200 hover:shadow-[0_8px_24px_rgba(79,124,255,0.1)] hover:scale-[1.01]">
+            <div key={q.id} className="border border-[rgba(0,0,0,0.08)] rounded-xl p-4 bg-white shadow-sm transition-all duration-200">
               <div className="flex justify-between items-center mb-2">
                 <p className="font-medium text-[#222222] text-sm">{i + 1}. {q.text}</p>
                 <span className={`text-sm font-bold ${rate < 50 ? "text-[#EF4444]" : rate < 80 ? "text-[#F59E0B]" : "text-[#22C55E]"}`}>
