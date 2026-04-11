@@ -10,19 +10,29 @@ interface AuthFormProps {
   mode: "login" | "signup";
 }
 
-export function AuthForm({ action, mode }: AuthFormProps) {
-  const [state, formAction, pending] = useActionState(action, null);
-  const router = useRouter();
-
+function useFormFields(mode: "login" | "signup") {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
+  const [prevMode, setPrevMode] = useState(mode);
 
-  useEffect(() => {
+  if (prevMode !== mode) {
+    setPrevMode(mode);
     if (mode === "login") {
       setEmail("test@teacher.com");
       setPassword("test1234");
+    } else {
+      setEmail("");
+      setPassword("");
     }
-  }, [mode]);
+  }
+
+  return { email, setEmail, password, setPassword };
+}
+
+export function AuthForm({ action, mode }: AuthFormProps) {
+  const [state, formAction, pending] = useActionState(action, null);
+  const router = useRouter();
+  const { email, setEmail, password, setPassword } = useFormFields(mode);
 
   useEffect(() => {
     if (state?.success) router.push("/dashboard");

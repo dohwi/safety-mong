@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useMemo } from "react";
 import { useSocket } from "@/hooks/use-socket";
 import { useHostDashboard } from "@/hooks/use-host-dashboard";
 import { SessionControls } from "./session-controls";
@@ -27,14 +27,12 @@ export function LiveDashboard({
   qrUrl,
   authToken,
 }: LiveDashboardProps) {
-  const [dynamicQrUrl, setDynamicQrUrl] = useState(qrUrl);
-
-  useEffect(() => {
+  const dynamicQrUrl = useMemo(() => {
     if (typeof window !== "undefined") {
-      const currentOrigin = window.location.origin;
-      setDynamicQrUrl(`${currentOrigin}/join/${sessionCode}`);
+      return `${window.location.origin}/join/${sessionCode}`;
     }
-  }, [sessionCode]);
+    return qrUrl;
+  }, [sessionCode, qrUrl]);
 
   const { socket } = useSocket(authToken);
   const { state, startSession, skipQuestion, endSession } = useHostDashboard(socket, sessionId);
