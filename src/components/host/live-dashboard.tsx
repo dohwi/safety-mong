@@ -1,5 +1,6 @@
 "use client";
 
+import { useEffect, useState } from "react";
 import { useSocket } from "@/hooks/use-socket";
 import { useHostDashboard } from "@/hooks/use-host-dashboard";
 import { SessionControls } from "./session-controls";
@@ -26,6 +27,15 @@ export function LiveDashboard({
   qrUrl,
   authToken,
 }: LiveDashboardProps) {
+  const [dynamicQrUrl, setDynamicQrUrl] = useState(qrUrl);
+
+  useEffect(() => {
+    if (typeof window !== "undefined") {
+      const currentOrigin = window.location.origin;
+      setDynamicQrUrl(`${currentOrigin}/join/${sessionCode}`);
+    }
+  }, [sessionCode]);
+
   const { socket } = useSocket(authToken);
   const { state, startSession, skipQuestion, endSession } = useHostDashboard(socket, sessionId);
   const displaySeconds = Number.isFinite(state.remainingSeconds) ? Math.max(0, state.remainingSeconds) : 0;
@@ -48,9 +58,9 @@ export function LiveDashboard({
       {state.phase === "waiting" && (
         <div className="flex flex-col items-center py-8 space-y-4">
           <div className="p-4 bg-white border-2 border-[rgba(79,124,255,0.4)] rounded-2xl shadow-sm qr-scan-wrap">
-            <QRCodeSVG value={qrUrl} size={200} bgColor="#FFFFFF" fgColor="#222222" />
+            <QRCodeSVG value={dynamicQrUrl} size={200} bgColor="#FFFFFF" fgColor="#222222" />
           </div>
-          <p className="text-sm text-[#9CA3AF]">{qrUrl}</p>
+          <p className="text-sm text-[#9CA3AF]">{dynamicQrUrl}</p>
           {state.targetParticipantCount && state.targetParticipantCount > 0 ? (
             <div className="w-full max-w-sm space-y-2">
               <div className="flex justify-between text-sm">

@@ -105,25 +105,27 @@ export function QuizEditor({ initialData, topic, onSave, saving }: QuizEditorPro
   return (
     <div className="mx-auto max-w-5xl space-y-6">
       <div className="rounded-[32px] border border-[rgba(0,0,0,0.08)] bg-white p-6 sm:p-8 shadow-sm">
-        <div className="flex flex-col gap-5 sm:flex-row sm:items-center sm:justify-between">
+        <div className="flex flex-col gap-5 md:flex-row md:items-center md:justify-between">
           <div className="flex items-center gap-4">
-            <div className="flex h-24 w-24 items-center justify-center rounded-full bg-[#F8F9FB]">
-              <BrandMascot variant="experiment" size={120} className="h-auto w-20 shrink-0 drop-shadow-sm" />
+            <div className="flex h-20 w-20 shrink-0 items-center justify-center rounded-2xl bg-[#F8F9FB]">
+              <BrandMascot variant="experiment" size={100} className="h-auto w-16 drop-shadow-sm" />
             </div>
             <div>
-              <p className="text-sm font-medium text-[#4F7CFF]">생성 완료</p>
-              <h1 className="mt-2 text-[28px] font-bold tracking-[-0.44px] text-[#222222]">{topic} 퀴즈 초안이 준비됐습니다</h1>
-              <p className="mt-2 text-sm leading-6 text-[#6B7280]">문항을 검수하고 직접 새 문제도 추가한 뒤 저장하세요.</p>
+              <div className="flex items-center gap-2">
+                <span className="text-2xl">{initialData.icon || "🧪"}</span>
+                <h1 className="text-2xl font-bold tracking-[-0.44px] text-[#222222]">{topic}</h1>
+              </div>
+              <p className="mt-1 text-sm text-[#6B7280]">AI가 생성한 퀴즈 초안입니다. 문항을 검수하고 저장하세요.</p>
             </div>
           </div>
-          <div className="grid grid-cols-2 gap-3 text-center sm:min-w-[220px]">
-            <div className="rounded-[20px] border border-[rgba(0,0,0,0.06)] bg-[#F8F9FB] px-4 py-4 transition-all duration-200">
-              <p className="text-xs font-medium text-[#6B7280]">생성 문항</p>
-              <p className="mt-1 text-2xl font-semibold text-[#222222]">{questionList.length}</p>
+          <div className="flex items-center gap-3">
+            <div className="rounded-xl border border-[rgba(0,0,0,0.06)] bg-[#F8F9FB] px-4 py-2 text-center">
+              <p className="text-[10px] font-bold text-[#9CA3AF] uppercase">생성 문항</p>
+              <p className="text-lg font-bold text-[#222222]">{questionList.length}</p>
             </div>
-            <div className="rounded-[20px] border border-[rgba(0,0,0,0.06)] bg-[#F1F3F8] px-4 py-4 transition-all duration-200">
-              <p className="text-xs font-medium text-[#6B7280]">편집 상태</p>
-              <p className="mt-1 text-sm font-semibold text-[#222222]">검수 전</p>
+            <div className="rounded-xl border border-[rgba(0,0,0,0.06)] bg-[#F1F3F8] px-4 py-2 text-center">
+              <p className="text-[10px] font-bold text-[#9CA3AF] uppercase">편집 상태</p>
+              <p className="text-sm font-bold text-[#222222]">검수 중</p>
             </div>
           </div>
         </div>
