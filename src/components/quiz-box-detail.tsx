@@ -161,7 +161,7 @@ export function QuizBoxDetail({ box, questions: questionList, isEditable, active
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M15 19l-7-7 7-7" />
               </svg>
             </Link>
-            <h1 className="text-3xl font-black text-[#222222] tracking-tight">{box.title}</h1>
+            <h1 className="text-3xl font-black text-[#222222] tracking-tight">{box.icon} {box.title}</h1>
           </div>
           <p className="text-[#6B7280] ml-12 font-medium">관리 및 세션 시작을 위한 상세 페이지입니다.</p>
         </div>

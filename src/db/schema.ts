@@ -11,6 +11,7 @@ export const users = sqliteTable("users", {
 export const quizBoxes = sqliteTable("quiz_boxes", {
   id: integer("id").primaryKey({ autoIncrement: true }),
   title: text("title").notNull(),
+  icon: text("icon").notNull().default("🧪"),
   safetyContent: text("safety_content"),
   instructorId: integer("instructor_id").notNull().references(() => users.id),
   questionDurationMs: integer("question_duration_ms").notNull().default(30000),

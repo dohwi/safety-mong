@@ -19,6 +19,7 @@ export type QuestionInput = {
 
 const createQuizBoxSchema = z.object({
   title: z.string().min(1, "실험 주제를 입력해주세요"),
+  icon: z.string().min(1).default("🧪"),
   safetyContent: z.string().min(1, "안전수칙 내용이 필요합니다"),
   questions: z.array(z.object({
     text: z.string().min(1),
@@ -46,7 +47,7 @@ export async function createQuizBox(formData: FormData) {
     return { error: result.error.errors[0].message };
   }
 
-  const { title, safetyContent, questions: questionInputs } = result.data;
+  const { title, icon, safetyContent, questions: questionInputs } = result.data;
   const questionDurationMs = Math.round(
     questionInputs.reduce((sum, question) => sum + question.questionDurationMs, 0) / questionInputs.length
   );
@@ -54,6 +55,7 @@ export async function createQuizBox(formData: FormData) {
   const now = new Date().toISOString();
   const box = db.insert(quizBoxes).values({
     title,
+    icon,
     safetyContent,
     instructorId: session.userId,
     questionDurationMs,

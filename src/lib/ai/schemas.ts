@@ -11,6 +11,7 @@ export const questionSchema = z.object({
 });
 
 export const quizGenerationSchema = z.object({
+  icon: z.string().describe("실험 주제에 가장 잘 어울리는 이모지 하나 (예: 🧪, 🔬, ⚡, 🔥, 🛡️, ☢️, 🧬, 🦠, 💊, 🧫, ⚗️, 🌡️, 🧯, 💡)"),
   safetyContent: z.string(),
   questions: z.array(questionSchema).min(3).max(10),
 });

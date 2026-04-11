@@ -18,7 +18,7 @@ export function QuizBoxCard({ box }: { box: QuizBox }) {
       
       <div className="relative space-y-4">
         <div className="inline-flex items-center justify-center w-12 h-12 rounded-2xl bg-[#F8F9FB] group-hover:bg-[#4F7CFF]/10 transition-colors">
-          <span className="text-xl">🧪</span>
+          <span className="text-xl">{box.icon || "🧪"}</span>
         </div>
         
         <div>

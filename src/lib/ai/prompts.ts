@@ -18,8 +18,9 @@ export function buildQuizPrompt(topic: string): string {
 이 실험과 관련된 안전수칙을 작성하고, 각 안전수칙에 대해 퀴즈 문제를 5개 생성해주세요.
 
 다음 형식으로 출력하세요:
-1. safetyContent: 실험 안전수칙 전체 내용 (마크다운 형식)
-2. questions: 퀴즈 문제 배열 (각 문제는 text, options, correctIndex, questionDurationMs, explanation, category, commonMisconception 포함)
+1. icon: 실험 주제를 가장 잘 나타내는 이모지 하나 (예: 🧪 화학, 🔬 분석, ⚡ 전기, 🔥 화재, 🛡️ 보호구, ☢️ 방사선, 🧬 생물, 🦠 미생물, 💊 약품, 🧫 배양, ⚗️ 증류, 🌡️ 온도, 🧯 소화, 💡 광학)
+2. safetyContent: 실험 안전수칙 전체 내용 (마크다운 형식)
+3. questions: 퀴즈 문제 배열 (각 문제는 text, options, correctIndex, questionDurationMs, explanation, category, commonMisconception 포함)
    - **중요**: explanation 및 commonMisconception 내의 핵심 키워드는 반드시 **굵게** 표시하세요.`;
 }
 

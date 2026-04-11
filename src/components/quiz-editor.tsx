@@ -86,6 +86,7 @@ export function QuizEditor({ initialData, topic, onSave, saving }: QuizEditorPro
       "data",
       JSON.stringify({
         title: topic,
+        icon: initialData.icon || "🧪",
         safetyContent,
         questions: questionList,
       })
