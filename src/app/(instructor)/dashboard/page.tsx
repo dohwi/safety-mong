@@ -1,3 +1,4 @@
+import Link from "next/link";
 import { getSession } from "@/lib/auth";
 import { redirect } from "next/navigation";
 import { db } from "@/db";
@@ -11,31 +12,26 @@ export const metadata = { title: "대시보드 - 안전몽" };
 export default async function DashboardPage() {
   const session = await getSession();
   if (!session) redirect("/login");
-
-  const boxes = db.select().from(quizBoxes)
-    .where(eq(quizBoxes.instructorId, session.userId))
-    .orderBy(desc(quizBoxes.createdAt))
-    .all();
+  const boxes = db.select().from(quizBoxes).where(eq(quizBoxes.instructorId, session.userId)).orderBy(desc(quizBoxes.createdAt)).all();
 
   return (
-    <div className="max-w-5xl mx-auto px-4 py-8">
-      <div className="flex items-center justify-between mb-6">
-        <h1 className="text-2xl font-bold text-[#222222]">내 퀴즈함</h1>
-        <a
-          href="/quiz-boxes/new"
-          className="px-4 py-2 bg-[#3b82f6] text-white font-medium rounded-lg hover:bg-[#1d4ed8] transition-colors"
-        >
+    <div className="max-w-6xl mx-auto px-4 py-10 space-y-10">
+      <div className="flex flex-col sm:flex-row sm:items-end justify-between gap-4 border-b border-[rgba(0,0,0,0.06)] pb-8">
+        <div>
+          <h1 className="text-3xl font-black text-[#222222] tracking-tight">내 퀴즈 보관함</h1>
+          <p className="mt-2 text-[#6B7280] font-medium">관리 중인 실험 안전 퀴즈 {boxes.length}개를 확인하세요.</p>
+        </div>
+        <Link href="/quiz-boxes/new" className="inline-flex items-center justify-center px-6 py-3.5 bg-[#4F7CFF] text-white font-bold rounded-2xl hover:bg-[#6B91FF] transition-all duration-300 hover:shadow-[0_8px_24px_rgba(79,124,255,0.25)] hover:translate-y-[-2px] active:scale-[0.98] active:translate-y-0 gap-2 group">
+          <svg className="w-5 h-5 transition-transform duration-300 group-hover:rotate-90" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M12 4v16m8-8H4" />
+          </svg>
           새 퀴즈 만들기
-        </a>
+        </Link>
       </div>
-
-      {boxes.length === 0 ? (
-        <EmptyQuizBoxes />
-      ) : (
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-          {boxes.map((box) => (
-            <QuizBoxCard key={box.id} box={box} />
-          ))}
+      
+      {boxes.length === 0 ? <EmptyQuizBoxes /> : (
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+          {boxes.map((box) => <QuizBoxCard key={box.id} box={box} />)}
         </div>
       )}
     </div>

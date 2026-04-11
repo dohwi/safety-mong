@@ -50,21 +50,21 @@ export default async function SessionDetailPage({
 
   return (
     <div className="max-w-3xl mx-auto px-4 py-8 space-y-6">
-      <Link href={`/quiz-boxes/${quizBoxId}/sessions`} className="text-sm text-[#3b82f6] hover:underline">← 세션 기록</Link>
+      <Link href={`/quiz-boxes/${quizBoxId}/sessions`} className="text-sm text-[#4F7CFF] hover:underline">← 세션 기록</Link>
       <h1 className="text-2xl font-bold text-[#222222]">{box.title} - 세션 상세</h1>
 
       <div className="grid grid-cols-3 gap-4">
-        <div className="text-center p-4 border border-[#c1c1c1] rounded-xl">
-          <p className="text-2xl font-bold text-[#3b82f6]">{participantList.length}</p>
-          <p className="text-xs text-[#6a6a6a]">참여자</p>
+        <div className="text-center p-4 border border-[rgba(0,0,0,0.08)] rounded-xl bg-white shadow-sm border-l-4 border-l-[#4F7CFF] transition-all duration-200">
+          <p className="text-2xl font-bold text-[#4F7CFF]">{participantList.length}</p>
+          <p className="text-xs text-[#9CA3AF]">참여자</p>
         </div>
-        <div className="text-center p-4 border border-[#c1c1c1] rounded-xl">
+        <div className="text-center p-4 border border-[rgba(0,0,0,0.08)] rounded-xl bg-white shadow-sm border-l-4 border-l-[#F59E0B] transition-all duration-200">
           <p className="text-2xl font-bold text-[#222222]">{avgRate}%</p>
-          <p className="text-xs text-[#6a6a6a]">평균 정답률</p>
+          <p className="text-xs text-[#9CA3AF]">평균 정답률</p>
         </div>
-        <div className="text-center p-4 border border-[#c1c1c1] rounded-xl">
+        <div className="text-center p-4 border border-[rgba(0,0,0,0.08)] rounded-xl bg-white shadow-sm border-l-4 border-l-[#22C55E] transition-all duration-200">
           <p className="text-2xl font-bold text-[#222222]">{questionList.length}</p>
-          <p className="text-xs text-[#6a6a6a]">문항수</p>
+          <p className="text-xs text-[#9CA3AF]">문항수</p>
         </div>
       </div>
 
@@ -76,14 +76,14 @@ export default async function SessionDetailPage({
           const rate = qAnswers.length > 0 ? Math.round((correct / qAnswers.length) * 100) : 0;
 
           return (
-            <div key={q.id} className="border border-[#c1c1c1] rounded-xl p-4">
+            <div key={q.id} className="border border-[rgba(0,0,0,0.08)] rounded-xl p-4 bg-white shadow-sm transition-all duration-200 hover:shadow-[0_8px_24px_rgba(79,124,255,0.1)] hover:scale-[1.01]">
               <div className="flex justify-between items-center mb-2">
                 <p className="font-medium text-[#222222] text-sm">{i + 1}. {q.text}</p>
-                <span className={`text-sm font-bold ${rate < 50 ? "text-red-500" : rate < 80 ? "text-amber-500" : "text-green-500"}`}>
+                <span className={`text-sm font-bold ${rate < 50 ? "text-[#EF4444]" : rate < 80 ? "text-[#F59E0B]" : "text-[#22C55E]"}`}>
                   {rate}%
                 </span>
               </div>
-              <p className="text-xs text-[#6a6a6a]">{correct}/{qAnswers.length} 정답</p>
+              <p className="text-xs text-[#9CA3AF]">{correct}/{qAnswers.length} 정답</p>
             </div>
           );
         })}
@@ -92,7 +92,7 @@ export default async function SessionDetailPage({
       {analysis && (
         <div className="space-y-3">
           <h2 className="text-lg font-semibold text-[#222222]">AI 분석 요약</h2>
-          <p className="text-sm text-[#222222] bg-gray-50 p-4 rounded-xl">{analysis.summary}</p>
+          <p className="text-sm text-[#6B7280] bg-white p-4 rounded-xl border border-[rgba(0,0,0,0.08)] shadow-sm">{analysis.summary}</p>
         </div>
       )}
     </div>

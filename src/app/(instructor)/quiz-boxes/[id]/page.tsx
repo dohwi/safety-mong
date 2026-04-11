@@ -1,8 +1,8 @@
 import { getSession } from "@/lib/auth";
 import { redirect, notFound } from "next/navigation";
 import { db } from "@/db";
-import { quizBoxes, questions } from "@/db/schema";
-import { eq, and } from "drizzle-orm";
+import { quizBoxes, questions, sessions } from "@/db/schema";
+import { eq, and, inArray } from "drizzle-orm";
 import { QuizBoxDetail } from "@/components/quiz-box-detail";
 
 export const metadata = { title: "퀴즈함 상세 - 안전몽" };
@@ -26,5 +26,13 @@ export default async function QuizBoxPage({ params }: { params: Promise<{ id: st
     .orderBy(questions.index)
     .all();
 
-  return <QuizBoxDetail box={box} questions={questionList} />;
+  const activePhases = ["waiting", "active", "intermission"];
+  const activeSessions = db.select().from(sessions).where(
+    and(eq(sessions.quizBoxId, boxId), inArray(sessions.phase, activePhases))
+  ).all();
+  const isEditable = activeSessions.length === 0;
+  const activeSessionId = activeSessions.length > 0 ? activeSessions[0].id : null;
+  const activeSessionCode = activeSessions.length > 0 ? activeSessions[0].code : null;
+
+  return <QuizBoxDetail box={box} questions={questionList} isEditable={isEditable} activeSessionId={activeSessionId} activeSessionCode={activeSessionCode} />;
 }
