@@ -358,9 +358,9 @@ export function QuizBoxDetail({ box, questions: questionList, isEditable, active
               </div>
             </div>
 
-            <div className="rounded-[24px] bg-[#222222] p-6 text-white shadow-sm">
-              <h3 className="text-sm font-bold mb-3">도움말</h3>
-              <ul className="space-y-2 text-xs text-gray-400 font-medium">
+            <div className="rounded-[24px] border border-[rgba(0,0,0,0.08)] bg-white p-6 shadow-sm">
+              <h3 className="text-sm font-bold mb-3 text-[#222222]">도움말</h3>
+              <ul className="space-y-2 text-xs text-[#6B7280] font-medium">
                 <li className="flex gap-2 leading-relaxed">
                   <span className="text-[#4F7CFF] shrink-0">•</span>
                   세션을 시작하면 학생들이 입장할 수 있는 참여 코드가 생성됩니다.
