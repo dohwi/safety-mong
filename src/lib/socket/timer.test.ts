@@ -65,12 +65,12 @@ describe("IntermissionTimer", () => {
     vi.useFakeTimers();
   });
 
-  it("defaults to 5000ms", () => {
+  it("defaults to 4000ms", () => {
     const onExpire = vi.fn();
     const timer = new IntermissionTimer(onExpire);
 
     timer.start();
-    vi.advanceTimersByTime(4999);
+    vi.advanceTimersByTime(3999);
     expect(onExpire).not.toHaveBeenCalled();
 
     vi.advanceTimersByTime(2);

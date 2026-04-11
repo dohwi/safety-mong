@@ -19,6 +19,7 @@ describe("AI Schemas", () => {
         commonMisconception: "오개념 설명",
       };
       const input = {
+        icon: "🧪",
         safetyContent: "안전수칙 내용",
         questions: [q, { ...q, text: "Q2?" }, { ...q, text: "Q3?" }],
       };
@@ -38,6 +39,7 @@ describe("AI Schemas", () => {
         commonMisconception: null,
       };
       const input = {
+        icon: "🧪",
         safetyContent: "안전수칙",
         questions: [q, { ...q, options: ["A", "B", "C", "D"] }, { ...q, options: ["A", "B", "C", "D"] }],
       };
@@ -57,6 +59,7 @@ describe("AI Schemas", () => {
         commonMisconception: null,
       };
       const input = {
+        icon: "🧪",
         safetyContent: "안전수칙",
         questions: [q, { ...q, correctIndex: 0 }, { ...q, correctIndex: 0 }],
       };
@@ -76,6 +79,7 @@ describe("AI Schemas", () => {
         commonMisconception: null,
       };
       const input = {
+        icon: "🧪",
         safetyContent: "안전수칙",
         questions: [q, { ...q, text: "Q2?" }, { ...q, text: "Q3?" }],
       };
@@ -89,8 +93,20 @@ describe("AI Schemas", () => {
     it("validates a correct analysis output", () => {
       const input = {
         summary: "그룹 이해도 요약",
-        weakAreas: [
-          { category: "화학취급", description: "취약함", correctRate: 0.3 },
+        overallCorrectRate: 0.75,
+        questionBreakdowns: [
+          {
+            questionIndex: 0,
+            questionText: "Q1?",
+            category: "화학취급",
+            correctRate: 0.8,
+            correctOptionText: "정답",
+            topWrongOptionIndex: 1,
+            topWrongOptionText: "오답",
+            topWrongSelectionRate: 0.15,
+            whyStudentsConfused: "이유",
+            teachingTip: "팁",
+          },
         ],
         topMisconceptions: [
           { misconception: "오개념", affectedQuestions: [0, 2], explanation: "설명" },
@@ -108,6 +124,7 @@ describe("AI Schemas", () => {
   describe("validateQuizOutput", () => {
     it("returns no errors for valid output", () => {
       const output: QuizGenerationOutput = {
+        icon: "🧪",
         safetyContent: "안전수칙",
         questions: [
           {
@@ -127,6 +144,7 @@ describe("AI Schemas", () => {
 
     it("returns error for empty questions", () => {
       const output: QuizGenerationOutput = {
+        icon: "🧪",
         safetyContent: "안전수칙",
         questions: [],
       };
@@ -137,6 +155,7 @@ describe("AI Schemas", () => {
 
     it("returns error for duplicate options", () => {
       const output: QuizGenerationOutput = {
+        icon: "🧪",
         safetyContent: "안전수칙",
         questions: [
           {

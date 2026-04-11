@@ -34,6 +34,7 @@ describe("Quiz Box Actions - DB Logic", () => {
       CREATE TABLE quiz_boxes (
         id INTEGER PRIMARY KEY AUTOINCREMENT,
         title TEXT NOT NULL,
+        icon TEXT NOT NULL DEFAULT '🧪',
         safety_content TEXT,
         instructor_id INTEGER NOT NULL REFERENCES users(id),
         question_duration_ms INTEGER NOT NULL DEFAULT 30000,

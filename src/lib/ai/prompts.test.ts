@@ -20,7 +20,7 @@ describe("AI Prompts", () => {
       topic: "화학실험",
       totalParticipants: 30,
       questions: [
-        { index: 0, text: "Q1?", category: "화학취급", correctRate: 0.8, optionDistribution: [24, 3, 2, 1] },
+        { index: 0, text: "Q1?", category: "화학취급", correctRate: 0.8, optionDistribution: [24, 3, 2, 1], options: ["A", "B", "C", "D"], correctIndex: 0, explanation: "해설" },
       ],
     });
 
