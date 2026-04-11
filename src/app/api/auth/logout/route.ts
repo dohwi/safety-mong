@@ -1,7 +1,10 @@
-import { NextResponse } from "next/server";
+import { NextRequest, NextResponse } from "next/server";
 import { logout } from "@/lib/actions/auth";
 
-export async function POST() {
+export async function POST(request: NextRequest) {
   await logout();
-  return NextResponse.redirect(new URL("/login", process.env.NEXT_PUBLIC_APP_URL || "http://localhost:3000"));
+  
+  // 요청의 Origin 정보를 사용하여 동적으로 리다이렉트 URL 생성
+  const origin = request.headers.get("origin") || request.nextUrl.origin;
+  return NextResponse.redirect(new URL("/login", origin));
 }

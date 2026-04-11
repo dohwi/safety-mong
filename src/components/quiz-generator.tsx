@@ -56,7 +56,7 @@ export function QuizGenerator({
         </div>
 
         <form onSubmit={handleSubmit} className="mt-8 space-y-4">
-          <div className="rounded-[24px] border border-[rgba(0,0,0,0.06)] bg-[#F8F9FB] p-5 shadow-inner transition-all duration-300 focus-within:border-[rgba(79,124,255,0.2)] focus-within:bg-white focus-within:shadow-lg focus-within:translate-y-[-2px]">
+          <div className="rounded-[24px] border border-[rgba(0,0,0,0.06)] bg-[#F8F9FB] p-5 transition-all duration-300 focus-within:border-[rgba(79,124,255,0.2)] focus-within:bg-white focus-within:shadow-[0_4px_20px_rgba(0,0,0,0.04)]">
             <label htmlFor="topic" className="block text-sm font-medium text-[#6B7280]">
               실험 주제
             </label>
