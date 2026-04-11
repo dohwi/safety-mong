@@ -4,6 +4,7 @@ export const questionSchema = z.object({
   text: z.string(),
   options: z.array(z.string()).length(4),
   correctIndex: z.number().int().min(0).max(3),
+  questionDurationMs: z.number().int().min(5000).max(120000),
   explanation: z.string(),
   category: z.string(),
   commonMisconception: z.string().nullable(),
@@ -17,22 +18,32 @@ export const quizGenerationSchema = z.object({
 export type QuestionOutput = z.infer<typeof questionSchema>;
 export type QuizGenerationOutput = z.infer<typeof quizGenerationSchema>;
 
+export const questionBreakdownSchema = z.object({
+  questionIndex: z.number(),
+  questionText: z.string(),
+  category: z.string(),
+  correctRate: z.number(),
+  correctOptionText: z.string(),
+  topWrongOptionIndex: z.number().nullable(),
+  topWrongOptionText: z.string().nullable(),
+  topWrongSelectionRate: z.number().nullable(),
+  whyStudentsConfused: z.string(),
+  teachingTip: z.string(),
+});
+
 export const analysisSchema = z.object({
   summary: z.string(),
-  weakAreas: z.array(z.object({
-    category: z.string(),
-    description: z.string(),
-    correctRate: z.number(),
-  })),
+  overallCorrectRate: z.number(),
+  questionBreakdowns: z.array(questionBreakdownSchema),
   topMisconceptions: z.array(z.object({
     misconception: z.string(),
     affectedQuestions: z.array(z.number()),
     explanation: z.string(),
   })),
   recommendations: z.array(z.object({
-    priority: z.enum(["high", "medium", "low"]),
-    title: z.string(),
-    description: z.string(),
+    priority: z.enum(["high", "medium", "low"]).default("medium"),
+    title: z.string().default("추가 교육 필요"),
+    description: z.string().default("해당 영역에 대한 보완 교육을 권장합니다."),
   })),
 });
 
