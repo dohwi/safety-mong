@@ -40,6 +40,7 @@ describe("DB Schema", () => {
         text TEXT NOT NULL,
         options TEXT NOT NULL,
         correct_index INTEGER NOT NULL,
+        question_duration_ms INTEGER NOT NULL DEFAULT 30000,
         explanation TEXT,
         category TEXT,
         created_at TEXT NOT NULL
@@ -52,6 +53,7 @@ describe("DB Schema", () => {
         instructor_id INTEGER NOT NULL REFERENCES users(id),
         phase TEXT NOT NULL,
         current_question_index INTEGER NOT NULL DEFAULT 0,
+        target_participant_count INTEGER,
         started_at TEXT,
         ended_at TEXT,
         ai_analysis TEXT,
@@ -139,12 +141,13 @@ describe("DB Schema", () => {
     db.insert(schema.quizBoxes).values({ title: "Test", instructorId: 1, createdAt: now, updatedAt: now }).run();
     db.insert(schema.questions).values({
       quizBoxId: 1, index: 0, text: "Q1?", options: JSON.stringify(["A", "B", "C", "D"]),
-      correctIndex: 0, explanation: "Because", category: "화학", createdAt: now,
+      correctIndex: 0, questionDurationMs: 45000, explanation: "Because", category: "화학", createdAt: now,
     }).run();
 
     const q = db.select().from(schema.questions).get();
     expect(q!.text).toBe("Q1?");
     expect(JSON.parse(q!.options)).toEqual(["A", "B", "C", "D"]);
+    expect(q!.questionDurationMs).toBe(45000);
 
     db.delete(schema.quizBoxes).where(eq(schema.quizBoxes.id, 1)).run();
     expect(db.select().from(schema.questions).get()).toBeUndefined();
@@ -168,7 +171,7 @@ describe("DB Schema", () => {
     db.insert(schema.users).values({ email: "i@test.com", name: "I", passwordHash: "h", createdAt: now }).run();
     db.insert(schema.quizBoxes).values({ title: "Test", instructorId: 1, createdAt: now, updatedAt: now }).run();
     db.insert(schema.questions).values({
-      quizBoxId: 1, index: 0, text: "Q?", options: "[]", correctIndex: 0, createdAt: now,
+      quizBoxId: 1, index: 0, text: "Q?", options: "[]", correctIndex: 0, questionDurationMs: 30000, createdAt: now,
     }).run();
     db.insert(schema.sessions).values({
       code: "XYZ12345", quizBoxId: 1, instructorId: 1, phase: "active", createdAt: now,

@@ -7,7 +7,7 @@ import { sessions, quizBoxes } from "@/db/schema";
 import { eq, and } from "drizzle-orm";
 import crypto from "crypto";
 
-export async function createSession(quizBoxId: number) {
+export async function createSession(quizBoxId: number, targetParticipantCount?: number) {
   const session = await getSession();
   if (!session) redirect("/login");
 
@@ -16,7 +16,6 @@ export async function createSession(quizBoxId: number) {
   ).get();
 
   if (!box) return { error: "퀴즈함을 찾을 수 없습니다" };
-  if (!box.isConfirmed) return { error: "확정되지 않은 퀴즈함입니다" };
 
   const activeSession = db.select().from(sessions).where(
     and(
@@ -32,6 +31,7 @@ export async function createSession(quizBoxId: number) {
     quizBoxId,
     instructorId: session.userId,
     phase: "waiting",
+    targetParticipantCount: targetParticipantCount && targetParticipantCount > 0 ? targetParticipantCount : null,
     createdAt: new Date().toISOString(),
   }).returning().get();
 

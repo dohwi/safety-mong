@@ -13,12 +13,13 @@ export async function middleware(request: NextRequest) {
 
   const isProtected = protectedPaths.some((p) => pathname.startsWith(p));
   const isAuthPage = authPaths.some((p) => pathname.startsWith(p));
+  const isRoot = pathname === "/";
 
   if (isProtected && !session) {
     return NextResponse.redirect(new URL("/login", request.url));
   }
 
-  if (isAuthPage && session) {
+  if ((isAuthPage || isRoot) && session) {
     return NextResponse.redirect(new URL("/dashboard", request.url));
   }
 
@@ -26,5 +27,5 @@ export async function middleware(request: NextRequest) {
 }
 
 export const config = {
-  matcher: ["/dashboard/:path*", "/quiz-boxes/:path*", "/sessions/:path*", "/login", "/signup"],
+  matcher: ["/dashboard/:path*", "/quiz-boxes/:path*", "/sessions/:path*", "/login", "/signup", "/((?!api|_next|play|join).*)"],
 };
