@@ -39,6 +39,10 @@ export class SessionTimer {
     return this.startedAt;
   }
 
+  getDurationMs(): number {
+    return this.durationMs;
+  }
+
   isRunning(): boolean {
     return this.timer !== null;
   }
@@ -46,6 +50,6 @@ export class SessionTimer {
 
 export class IntermissionTimer extends SessionTimer {
   constructor(onExpire: () => void) {
-    super(onExpire, 5000);
+    super(onExpire, 4000);
   }
 }

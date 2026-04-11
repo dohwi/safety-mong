@@ -6,6 +6,8 @@ export interface QuestionBroadcast {
   options: string[];
   startedAt: number;
   durationMs: number;
+  serverNow: number;
+  remainingSeconds: number;
 }
 
 export interface QuestionHostBroadcast {
@@ -14,10 +16,31 @@ export interface QuestionHostBroadcast {
   durationMs: number;
 }
 
+export interface SessionStatePayload {
+  phase: SessionPhase;
+  currentQuestionIndex: number;
+  participants: LiveParticipant[];
+  targetParticipantCount: number | null;
+  currentQuestion: QuestionBroadcast | null;
+  responseCount: number;
+  allQuestionStats: QuestionStats[];
+  remainingSeconds: number;
+}
+
 export interface AnswerFeedback {
   isCorrect: boolean;
   correctIndex: number;
   explanation: string;
+}
+
+export interface QuestionReviewItem {
+  questionIndex: number;
+  questionText: string;
+  options: string[];
+  selectedIndex: number | null;
+  correctIndex: number;
+  explanation: string;
+  isCorrect: boolean;
 }
 
 export interface QuestionStats {
@@ -46,12 +69,13 @@ export interface ClientToServerEvents {
 export interface ServerToClientEvents {
   "session:joined": (data: { participantId: number; nickname: string; reconnectToken: string }) => void;
   "session:error": (data: { message: string }) => void;
-  "participant:joined": (data: { nickname: string; participantCount: number }) => void;
+  "participant:joined": (data: { nickname: string; participantCount: number; targetParticipantCount: number | null }) => void;
   "question:start": (data: QuestionBroadcast) => void;
+  "question:timer": (data: { remainingSeconds: number }) => void;
   "answer:feedback": (data: AnswerFeedback) => void;
   "answer:count": (data: { questionIndex: number; responseCount: number }) => void;
   "question:end": (data: { questionIndex: number; correctIndex: number; explanation: string }) => void;
   "question:stats": (data: QuestionStats) => void;
   "session:complete": (data: { sessionId: number }) => void;
-  "session:state": (data: { phase: SessionPhase; currentQuestionIndex: number; participants: LiveParticipant[] }) => void;
+  "session:state": (data: SessionStatePayload) => void;
 }

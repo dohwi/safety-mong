@@ -7,6 +7,7 @@ export interface LiveSessionState {
   sessionId: number;
   phase: SessionPhase;
   currentQuestionIndex: number;
+  targetParticipantCount: number | null;
   participants: Map<number, LiveParticipant>;
   currentQuestionAnswers: Map<number, number>;
   questionStats: Map<number, { correctCount: number; optionDistribution: number[] }>;
@@ -19,10 +20,12 @@ export function getLiveSession(sessionId: number): LiveSessionState | undefined 
 }
 
 export function createLiveSession(sessionId: number): LiveSessionState {
+  const dbSession = db.select().from(sessions).where(eq(sessions.id, sessionId)).get();
   const state: LiveSessionState = {
     sessionId,
     phase: "waiting",
     currentQuestionIndex: 0,
+    targetParticipantCount: dbSession?.targetParticipantCount ?? null,
     participants: new Map(),
     currentQuestionAnswers: new Map(),
     questionStats: new Map(),

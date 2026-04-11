@@ -1,7 +1,7 @@
 import { createServer } from "http";
 import { parse } from "url";
 import next from "next";
-import { Server } from "socket.io";
+import { Server, Socket } from "socket.io";
 import { db } from "@/db";
 import { sessions, participants, questions, quizBoxes, answers } from "@/db/schema";
 import { eq, and } from "drizzle-orm";
@@ -29,17 +29,45 @@ interface LiveSessionState {
   sessionId: number;
   phase: string;
   currentQuestionIndex: number;
+  targetParticipantCount: number | null;
   participants: Map<number, LiveParticipant>;
   currentQuestionAnswers: Map<number, number>;
   questionStats: Map<number, QuestionStats>;
   socketMap: Map<string, number>;
 }
 
+interface SessionStatePayload {
+  phase: string;
+  currentQuestionIndex: number;
+  participants: LiveParticipant[];
+  targetParticipantCount: number | null;
+  currentQuestion: {
+    index: number;
+    text: string;
+    options: string[];
+    startedAt: number;
+    durationMs: number;
+    serverNow: number;
+    remainingSeconds: number;
+  } | null;
+  responseCount: number;
+  allQuestionStats: {
+    questionIndex: number;
+    totalParticipants: number;
+    responseCount: number;
+    correctCount: number;
+    optionDistribution: number[];
+  }[];
+  remainingSeconds: number;
+}
+
 const liveSessions = new Map<number, LiveSessionState>();
 
 function getLiveSession(id: number) { return liveSessions.get(id); }
 function createLiveSession(id: number): LiveSessionState {
-  const state: LiveSessionState = { sessionId: id, phase: "waiting", currentQuestionIndex: 0, participants: new Map(), currentQuestionAnswers: new Map(), questionStats: new Map(), socketMap: new Map() };
+  const dbSession = db.select().from(sessions).where(eq(sessions.id, id)).get();
+  const target = dbSession?.targetParticipantCount ?? null;
+  const state: LiveSessionState = { sessionId: id, phase: "waiting", currentQuestionIndex: 0, targetParticipantCount: target, participants: new Map(), currentQuestionAnswers: new Map(), questionStats: new Map(), socketMap: new Map() };
   liveSessions.set(id, state);
   return state;
 }
@@ -49,6 +77,89 @@ function persistPhase(sessionId: number, phase: string, idx: number) {
   if (phase === "active" && idx === 0) updates.startedAt = now;
   if (phase === "completed" || phase === "closed") updates.endedAt = now;
   db.update(sessions).set(updates).where(eq(sessions.id, sessionId)).run();
+}
+
+function buildSessionStatePayload(
+  sessionId: number,
+  state: LiveSessionState,
+  sessionTimers: Map<number, { question?: ReturnType<typeof setTimeout>; intermission?: ReturnType<typeof setTimeout>; startedAt?: number; durationMs?: number; timerBroadcast?: ReturnType<typeof setInterval> }>
+): SessionStatePayload {
+  const session = db.select().from(sessions).where(eq(sessions.id, sessionId)).get();
+  const questionList = session
+    ? db.select().from(questions).where(eq(questions.quizBoxId, session.quizBoxId)).orderBy(questions.index).all()
+    : [];
+  const currentQuestionRow = state.currentQuestionIndex < questionList.length ? questionList[state.currentQuestionIndex] : null;
+  const currentQuestion =
+    state.phase === "active" && currentQuestionRow && sessionTimers.get(sessionId)?.startedAt
+      ? {
+          index: state.currentQuestionIndex,
+          text: currentQuestionRow.text,
+          options: JSON.parse(currentQuestionRow.options),
+          startedAt: sessionTimers.get(sessionId)!.startedAt!,
+          durationMs: currentQuestionRow.questionDurationMs || 30000,
+          serverNow: Date.now(),
+          remainingSeconds: getRemainingSeconds(sessionTimers.get(sessionId)?.startedAt, sessionTimers.get(sessionId)?.durationMs),
+        }
+      : null;
+
+  return {
+    phase: state.phase,
+    currentQuestionIndex: state.currentQuestionIndex,
+    participants: Array.from(state.participants.values()),
+    targetParticipantCount: state.targetParticipantCount,
+    currentQuestion,
+    responseCount: state.currentQuestionAnswers.size,
+    allQuestionStats: Array.from(state.questionStats.entries()).map(([questionIndex, stats]) => ({
+      questionIndex,
+      totalParticipants: state.participants.size,
+      responseCount:
+        questionIndex === state.currentQuestionIndex && state.phase === "active"
+          ? state.currentQuestionAnswers.size
+          : stats.optionDistribution.reduce((sum, count) => sum + count, 0),
+      correctCount: stats.correctCount,
+      optionDistribution: stats.optionDistribution,
+    })),
+    remainingSeconds: state.phase === "active"
+      ? getRemainingSeconds(sessionTimers.get(sessionId)?.startedAt, sessionTimers.get(sessionId)?.durationMs)
+      : 0,
+  };
+}
+
+function getRemainingSeconds(startedAt?: number, durationMs?: number) {
+  if (!startedAt || !durationMs) return 0;
+  const remaining = startedAt + durationMs - Date.now();
+  return Math.max(0, Math.ceil(remaining / 1000));
+}
+
+function emitTimerUpdate(
+  io: Server,
+  sessionId: number,
+  sessionTimers: Map<number, { question?: ReturnType<typeof setTimeout>; intermission?: ReturnType<typeof setTimeout>; startedAt?: number; durationMs?: number; timerBroadcast?: ReturnType<typeof setInterval> }>
+) {
+  const timers = sessionTimers.get(sessionId);
+  io.to(`session:${sessionId}`).emit("question:timer", {
+    remainingSeconds: getRemainingSeconds(timers?.startedAt, timers?.durationMs),
+  });
+}
+
+function emitTimerSnapshot(
+  socket: Socket,
+  sessionId: number,
+  sessionTimers: Map<number, { question?: ReturnType<typeof setTimeout>; intermission?: ReturnType<typeof setTimeout>; startedAt?: number; durationMs?: number; timerBroadcast?: ReturnType<typeof setInterval> }>
+) {
+  const timers = sessionTimers.get(sessionId);
+  if (!timers?.question || !timers.startedAt || !timers.durationMs) return;
+
+  socket.emit("question:timer", {
+    remainingSeconds: getRemainingSeconds(timers.startedAt, timers.durationMs),
+  });
+}
+
+function clearTimerBroadcast(timers?: { timerBroadcast?: ReturnType<typeof setInterval> }) {
+  if (timers?.timerBroadcast) {
+    clearInterval(timers.timerBroadcast);
+    timers.timerBroadcast = undefined;
+  }
 }
 
 const app = next({ dev, hostname, port });
@@ -67,7 +178,7 @@ app.prepare().then(() => {
     },
   });
 
-  const sessionTimers = new Map<number, { question?: ReturnType<typeof setTimeout>; intermission?: ReturnType<typeof setTimeout>; startedAt?: number }>();
+  const sessionTimers = new Map<number, { question?: ReturnType<typeof setTimeout>; intermission?: ReturnType<typeof setTimeout>; startedAt?: number; durationMs?: number; timerBroadcast?: ReturnType<typeof setInterval> }>();
 
   function startQuestion(sessionId: number, state: ReturnType<typeof createLiveSession>) {
     const session = db.select().from(sessions).where(eq(sessions.id, sessionId)).get();
@@ -78,11 +189,18 @@ app.prepare().then(() => {
       state.phase = "completed";
       persistPhase(sessionId, "completed", idx);
       io.to(`session:${sessionId}`).emit("session:complete", { sessionId });
+      
+      // AI 분석 요청 트리거 (비동기)
+      fetch(`http://localhost:${port}/api/analyze`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ sessionId }),
+      }).catch(err => console.error("[AI] 서버 측 자동 분석 요청 실패:", err));
+      
       return;
     }
     const q = questionList[idx];
-    const box = db.select().from(quizBoxes).where(eq(quizBoxes.id, session.quizBoxId)).get();
-    const durationMs = box?.questionDurationMs ?? 30000;
+    const durationMs = q.questionDurationMs || 30000;
     state.currentQuestionAnswers.clear();
     for (const p of state.participants.values()) p.hasAnswered = false;
     state.phase = "active";
@@ -90,10 +208,25 @@ app.prepare().then(() => {
     const startedAt = Date.now();
     const timers = sessionTimers.get(sessionId) || {};
     timers.startedAt = startedAt;
+    timers.durationMs = durationMs;
     if (timers.question) clearTimeout(timers.question);
+    clearTimerBroadcast(timers);
     timers.question = setTimeout(() => endQuestion(sessionId, state), durationMs);
     sessionTimers.set(sessionId, timers);
-    io.to(`session:${sessionId}`).emit("question:start", { index: idx, text: q.text, options: JSON.parse(q.options), startedAt, durationMs });
+    io.to(`session:${sessionId}`).emit("question:start", {
+      index: idx,
+      text: q.text,
+      options: JSON.parse(q.options),
+      startedAt,
+      durationMs,
+      serverNow: Date.now(),
+      remainingSeconds: getRemainingSeconds(startedAt, durationMs),
+    });
+    emitTimerUpdate(io, sessionId, sessionTimers);
+    timers.timerBroadcast = setInterval(() => {
+      emitTimerUpdate(io, sessionId, sessionTimers);
+    }, 250);
+    io.to(`session:${sessionId}`).emit("session:state", buildSessionStatePayload(sessionId, state, sessionTimers));
   }
 
   function endQuestion(sessionId: number, state: ReturnType<typeof createLiveSession>) {
@@ -103,19 +236,35 @@ app.prepare().then(() => {
     const idx = state.currentQuestionIndex;
     const q = questionList[idx];
     const stats = state.questionStats.get(idx);
+    const timers = sessionTimers.get(sessionId) || {};
+    clearTimerBroadcast(timers);
+    if (timers.question) clearTimeout(timers.question);
+    timers.question = undefined;
+    timers.startedAt = undefined;
+    timers.durationMs = undefined;
     io.to(`session:${sessionId}`).emit("question:end", { questionIndex: idx, correctIndex: q.correctIndex, explanation: q.explanation ?? "" });
     io.to(`session:${sessionId}:host`).emit("question:stats", stats ? { questionIndex: idx, totalParticipants: state.participants.size, responseCount: state.currentQuestionAnswers.size, correctCount: stats.correctCount, optionDistribution: stats.optionDistribution } : { questionIndex: idx, totalParticipants: state.participants.size, responseCount: state.currentQuestionAnswers.size, correctCount: 0, optionDistribution: [0, 0, 0, 0] });
     if (idx + 1 >= questionList.length) {
       state.phase = "completed";
       persistPhase(sessionId, "completed", idx);
       io.to(`session:${sessionId}`).emit("session:complete", { sessionId });
+      
+      // AI 분석 요청 트리거 (비동기)
+      fetch(`http://localhost:${port}/api/analyze`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ sessionId }),
+      }).catch(err => console.error("[AI] 서버 측 자동 분석 요청 실패:", err));
+      
       return;
     }
     state.phase = "intermission";
     persistPhase(sessionId, "intermission", idx);
-    const timers = sessionTimers.get(sessionId) || {};
     if (timers.intermission) clearTimeout(timers.intermission);
-    timers.intermission = setTimeout(() => { state.currentQuestionIndex++; startQuestion(sessionId, state); }, 5000);
+    timers.intermission = setTimeout(() => {
+      state.currentQuestionIndex++;
+      startQuestion(sessionId, state);
+    }, 5000); // 5초 대기 후 다음 문제
     sessionTimers.set(sessionId, timers);
   }
 
@@ -131,7 +280,8 @@ app.prepare().then(() => {
       if (!state) state = createLiveSession(sessionId);
       socket.join(`session:${sessionId}`);
       socket.join(`session:${sessionId}:host`);
-      socket.emit("session:state", { phase: state.phase, currentQuestionIndex: state.currentQuestionIndex, participants: Array.from(state.participants.values()) });
+      socket.emit("session:state", buildSessionStatePayload(sessionId, state, sessionTimers));
+      emitTimerSnapshot(socket, sessionId, sessionTimers);
     });
 
     socket.on("session:join", ({ sessionId, nickname, reconnectToken }: { sessionId: number; nickname: string; reconnectToken?: string }) => {
@@ -149,6 +299,8 @@ app.prepare().then(() => {
           state.participants.set(existing.id, { id: existing.id, nickname: existing.nickname, hasAnswered: false });
           state.socketMap.set(socket.id, existing.id);
           socket.emit("session:joined", { participantId: existing.id, nickname: existing.nickname, reconnectToken: existing.reconnectToken });
+          socket.emit("session:state", buildSessionStatePayload(sessionId, state, sessionTimers));
+          emitTimerSnapshot(socket, sessionId, sessionTimers);
           return;
         }
       }
@@ -161,7 +313,13 @@ app.prepare().then(() => {
       state.participants.set(p.id, { id: p.id, nickname: p.nickname, hasAnswered: false });
       state.socketMap.set(socket.id, p.id);
       socket.emit("session:joined", { participantId: p.id, nickname: p.nickname, reconnectToken: rt });
-      io.to(`session:${sessionId}:host`).emit("participant:joined", { nickname: p.nickname, participantCount: state.participants.size });
+      io.to(`session:${sessionId}:host`).emit("participant:joined", { nickname: p.nickname, participantCount: state.participants.size, targetParticipantCount: state.targetParticipantCount });
+      io.to(`session:${sessionId}`).emit("participant:joined", { nickname: p.nickname, participantCount: state.participants.size, targetParticipantCount: state.targetParticipantCount });
+      if (state.targetParticipantCount && state.participants.size >= state.targetParticipantCount && state.phase === "waiting") {
+        startQuestion(sessionId, state);
+      }
+      socket.emit("session:state", buildSessionStatePayload(sessionId, state, sessionTimers));
+      emitTimerSnapshot(socket, sessionId, sessionTimers);
     });
 
     socket.on("session:start", ({ sessionId }: { sessionId: number }) => {
@@ -175,6 +333,7 @@ app.prepare().then(() => {
       if (!state || state.phase !== "active") return;
       const timers = sessionTimers.get(sessionId);
       if (timers?.question) clearTimeout(timers.question);
+      clearTimerBroadcast(timers);
       endQuestion(sessionId, state);
     });
 
@@ -182,10 +341,17 @@ app.prepare().then(() => {
       const state = getLiveSession(sessionId);
       if (!state) return;
       const timers = sessionTimers.get(sessionId);
-      if (timers) { if (timers.question) clearTimeout(timers.question); if (timers.intermission) clearTimeout(timers.intermission); }
+      if (timers) { if (timers.question) clearTimeout(timers.question); if (timers.intermission) clearTimeout(timers.intermission); clearTimerBroadcast(timers); }
       state.phase = "completed";
       persistPhase(sessionId, "completed", state.currentQuestionIndex);
       io.to(`session:${sessionId}`).emit("session:complete", { sessionId });
+
+      // AI 분석 요청 트리거 (비동기)
+      fetch(`http://localhost:${port}/api/analyze`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ sessionId }),
+      }).catch(err => console.error("[AI] 서버 측 자동 분석 요청 실패:", err));
     });
 
     socket.on("answer:submit", ({ sessionId, questionIndex, selectedIndex, submittedAt }: { sessionId: number; questionIndex: number; selectedIndex: number; submittedAt: number }) => {
@@ -197,27 +363,52 @@ app.prepare().then(() => {
       if (!participant || participant.hasAnswered) return;
       const session = db.select().from(sessions).where(eq(sessions.id, sessionId)).get();
       if (!session) return;
-      const box = db.select().from(quizBoxes).where(eq(quizBoxes.id, session.quizBoxId)).get();
-      if (!box) return;
-      const questionList = db.select().from(questions).where(eq(questions.quizBoxId, box.id)).orderBy(questions.index).all();
+      const questionList = db.select().from(questions).where(eq(questions.quizBoxId, session.quizBoxId)).orderBy(questions.index).all();
       if (questionIndex >= questionList.length) return;
       const q = questionList[questionIndex];
       const now = Date.now();
       const timers = sessionTimers.get(sessionId);
       if (!timers?.startedAt) return;
-      if (now - timers.startedAt > box.questionDurationMs + GRACE_PERIOD_MS) return;
+      if (now - timers.startedAt > (q.questionDurationMs || 30000) + GRACE_PERIOD_MS) return;
       const isCorrect = selectedIndex === q.correctIndex;
       state.currentQuestionAnswers.set(participant.id, selectedIndex);
       participant.hasAnswered = true;
       let stats = state.questionStats.get(questionIndex);
-      if (!stats) { stats = { correctCount: 0, optionDistribution: [0, 0, 0, 0] }; state.questionStats.set(questionIndex, stats); }
+      if (!stats) {
+        stats = { correctCount: 0, optionDistribution: [0, 0, 0, 0] };
+        state.questionStats.set(questionIndex, stats);
+      }
       if (isCorrect) stats.correctCount++;
-      if (selectedIndex >= 0 && selectedIndex < 4) stats.optionDistribution[selectedIndex]++;
-      db.insert(answers).values({ sessionId, questionId: q.id, participantId: participant.id, selectedIndex, isCorrect, responseTimeMs: now - submittedAt, submittedAt: new Date().toISOString() }).run();
+      if (selectedIndex >= 0 && selectedIndex < 4) {
+        stats.optionDistribution[selectedIndex] = (stats.optionDistribution[selectedIndex] || 0) + 1;
+      }
+      
+      db.insert(answers).values({
+        sessionId,
+        questionId: q.id,
+        participantId: participant.id,
+        selectedIndex,
+        isCorrect,
+        responseTimeMs: now - submittedAt,
+        submittedAt: new Date().toISOString()
+      }).run();
+      
       socket.emit("answer:feedback", { isCorrect, correctIndex: q.correctIndex, explanation: q.explanation ?? "" });
-      io.to(`session:${sessionId}:host`).emit("answer:count", { questionIndex, responseCount: state.currentQuestionAnswers.size });
-      if (state.currentQuestionAnswers.size >= state.participants.size) {
-        if (timers?.question) clearTimeout(timers.question);
+      
+      // 호스트에게 현재 제출 인원 브로드캐스트
+      io.to(`session:${sessionId}:host`).emit("answer:count", { 
+        questionIndex, 
+        responseCount: state.currentQuestionAnswers.size 
+      });
+
+      // 모든 참여자가 제출했을 때만 다음으로 넘어감 (최소 1명 이상일 때)
+      if (state.participants.size > 0 && state.currentQuestionAnswers.size >= state.participants.size) {
+        const timers = sessionTimers.get(sessionId);
+        if (timers?.question) {
+          clearTimeout(timers.question);
+          timers.question = undefined;
+        }
+        clearTimerBroadcast(timers);
         endQuestion(sessionId, state);
       }
     });
