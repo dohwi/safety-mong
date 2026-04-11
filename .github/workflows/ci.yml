@@ -27,6 +27,8 @@ jobs:
 
       - run: pnpm install --frozen-lockfile
 
+      - run: mkdir -p data && pnpm db:push
+
       - run: pnpm tsc --noEmit
 
       - run: pnpm run lint
