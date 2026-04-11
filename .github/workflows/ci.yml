@@ -37,6 +37,6 @@ jobs:
 
       - run: pnpm run build
         env:
-          OPENROUTER_API_KEY: ${{ secrets.OPENROUTER_API_KEY }}
-          AUTH_SECRET: ${{ secrets.AUTH_SECRET }}
+          OPENROUTER_API_KEY: ci-dummy-key
+          AUTH_SECRET: ci-dummy-secret-for-build-only-min-32-characters!!
           NEXT_PUBLIC_APP_URL: http://localhost:3000
