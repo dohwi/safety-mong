@@ -27,30 +27,35 @@ export function AnalysisView({ sessionId, quizBoxTitle, aiAnalysis, phase }: Ana
       try { setAnalysis(JSON.parse(aiAnalysis)); } catch {}
       return;
     }
-    if (phase === "completed" && !loading && !didFetch.current) {
-      didFetch.current = true;
-      setLoading(true);
-      fetchAnalysis();
-    }
-  }, [phase, aiAnalysis, analysis]);
+    if (phase !== "completed" || loading || didFetch.current) return;
 
-  async function fetchAnalysis() {
-    try {
-      const res = await fetch("/api/analyze", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ sessionId }),
-      });
-      if (!res.ok) return;
-      const data = await res.json();
-      if (data.summary) {
-        setAnalysis(data);
-        setLoading(false);
-        return;
-      }
-    } catch {}
-    setTimeout(fetchAnalysis, 3000);
-  }
+    didFetch.current = true;
+    setLoading(true);
+
+    let cancelled = false;
+
+    async function poll() {
+      if (cancelled) return;
+      try {
+        const res = await fetch("/api/analyze", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ sessionId }),
+        });
+        if (!res.ok) throw new Error("fail");
+        const data = await res.json();
+        if (data.summary && !cancelled) {
+          setAnalysis(data);
+          setLoading(false);
+          return;
+        }
+      } catch {}
+      if (!cancelled) setTimeout(poll, 3000);
+    }
+
+    poll();
+    return () => { cancelled = true; };
+  }, [phase, aiAnalysis, analysis, loading, sessionId]);
 
   async function handleClose() {
     await fetch("/api/session/close", {

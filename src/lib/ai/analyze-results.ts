@@ -59,12 +59,15 @@ function buildFallbackAnalysis(
   };
 }
 
-function buildQuestionStats(questionList: any[], allAnswers: any[]) {
-  return questionList.map((q: any, index: number) => {
-    const qAnswers = allAnswers.filter((a: any) => a.questionId === q.id);
-    const correctCount = qAnswers.filter((a: any) => a.isCorrect).length;
+interface QuestionRow { id: number; options: string; text: string; category: string | null; correctIndex: number; explanation: string | null }
+interface AnswerRow { questionId: number; isCorrect: boolean; selectedIndex: number; participantId: number }
+
+function buildQuestionStats(questionList: QuestionRow[], allAnswers: AnswerRow[]) {
+  return questionList.map((q, index) => {
+    const qAnswers = allAnswers.filter((a) => a.questionId === q.id);
+    const correctCount = qAnswers.filter((a) => a.isCorrect).length;
     const distribution = [0, 1, 2, 3].map((i) => {
-      return qAnswers.filter((a: any) => a.selectedIndex === i).length;
+      return qAnswers.filter((a) => a.selectedIndex === i).length;
     });
     let options: string[] = ["선택지 1", "선택지 2", "선택지 3", "선택지 4"];
     try { options = JSON.parse(q.options); } catch {}
@@ -110,7 +113,7 @@ export async function analyzeResults(sessionId: number): Promise<AnalysisOutput>
   }
 
   const questionStats = buildQuestionStats(questionList, allAnswers);
-  const totalParticipants = new Set(allAnswers.map((a: any) => a.participantId)).size;
+  const totalParticipants = new Set(allAnswers.map((a) => a.participantId)).size;
 
   try {
     console.log(`[AI] 프롬프트 구성 완료 (참여자: ${totalParticipants}명, 문항: ${questionStats.length}개)`);
