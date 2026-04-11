@@ -14,26 +14,17 @@ export function ReviewChecklist({ onComplete }: { onComplete: (complete: boolean
 
   function toggle(index: number) {
     const next = new Set(checked);
-    if (next.has(index)) {
-      next.delete(index);
-    } else {
-      next.add(index);
-    }
+    if (next.has(index)) next.delete(index); else next.add(index);
     setChecked(next);
     onComplete(next.size === CHECKLIST_ITEMS.length);
   }
 
   return (
-    <div className="border border-[#c1c1c1] rounded-2xl p-5 space-y-3">
+    <div className="rounded-2xl border border-[rgba(0,0,0,0.06)] bg-white p-5 space-y-3 shadow-[0_1px_3px_rgba(0,0,0,0.04)]">
       <h2 className="text-lg font-semibold text-[#222222]">검수 체크리스트</h2>
       {CHECKLIST_ITEMS.map((item, i) => (
-        <label key={i} className="flex items-start gap-3 cursor-pointer">
-          <input
-            type="checkbox"
-            checked={checked.has(i)}
-            onChange={() => toggle(i)}
-            className="mt-0.5 w-4 h-4 rounded border-[#c1c1c1] text-[#3b82f6] focus:ring-[#3b82f6]"
-          />
+        <label key={i} className={`flex items-start gap-3 rounded-xl px-3 py-3 cursor-pointer transition-all duration-200 border ${checked.has(i) ? "border-[rgba(79,124,255,0.2)] bg-[rgba(79,124,255,0.04)]" : "border-[rgba(0,0,0,0.04)] hover:border-[rgba(0,0,0,0.1)] hover:bg-[#F8F9FB]"}`}>
+          <input type="checkbox" checked={checked.has(i)} onChange={() => toggle(i)} className="mt-0.5 w-4 h-4 rounded accent-[#4F7CFF]" />
           <span className="text-sm text-[#222222]">{item}</span>
         </label>
       ))}
