@@ -2,45 +2,30 @@
 
 import type { QuestionStats } from "@/lib/socket/types";
 
-export function QuestionStatsDisplay({ stats, totalQuestions }: { stats: QuestionStats | null; totalQuestions: number }) {
-  if (!stats) return null;
+export function QuestionStatsDisplay({ stats, totalQuestions }: { stats: QuestionStats[]; totalQuestions: number }) {
+  if (!stats || stats.length === 0) return null;
 
-  const correctRate = stats.totalParticipants > 0
-    ? Math.round((stats.correctCount / stats.totalParticipants) * 100)
-    : 0;
+  const totalCorrect = stats.reduce((sum, s) => sum + s.correctCount, 0);
+  const totalParticipants = stats[0]?.totalParticipants || 0;
+  const overallRate = totalParticipants > 0 ? Math.round((totalCorrect / (totalParticipants * stats.length)) * 100) : 0;
 
   return (
-    <div className="border border-[#c1c1c1] rounded-2xl p-4 space-y-3">
+    <div className="border border-[rgba(0,0,0,0.08)] rounded-2xl p-4 space-y-3 bg-white shadow-sm">
       <h3 className="font-semibold text-[#222222]">
-        문제 {stats.questionIndex + 1}/{totalQuestions} 통계
+        전체 통계 ({stats.length}/{totalQuestions}문제)
       </h3>
 
       <div className="grid grid-cols-2 gap-3">
-        <div className="text-center p-3 bg-gray-50 rounded-lg">
-          <p className="text-2xl font-bold text-[#3b82f6]">{correctRate}%</p>
-          <p className="text-xs text-[#6a6a6a]">정답률</p>
+        <div className="text-center p-3 bg-[#F8F9FB] rounded-xl border-l-4 border-[#4F7CFF] transition-all duration-200">
+          <p className="text-2xl font-bold text-[#4F7CFF]">{overallRate}%</p>
+          <p className="text-xs text-[#9CA3AF]">종합 정답률</p>
         </div>
-        <div className="text-center p-3 bg-gray-50 rounded-lg">
+        <div className="text-center p-3 bg-[#F8F9FB] rounded-xl border-l-4 border-[#6B7280] transition-all duration-200">
           <p className="text-2xl font-bold text-[#222222]">
-            {stats.responseCount}/{stats.totalParticipants}
+            {totalCorrect}/{totalParticipants * stats.length}
           </p>
-          <p className="text-xs text-[#6a6a6a]">응답</p>
+          <p className="text-xs text-[#9CA3AF]">정답/제출</p>
         </div>
-      </div>
-
-      <div className="space-y-1.5">
-        {stats.optionDistribution.map((count, i) => (
-          <div key={i} className="flex items-center gap-2">
-            <span className="text-xs text-[#6a6a6a] w-8">{i + 1}번</span>
-            <div className="flex-1 bg-gray-100 rounded-full h-4">
-              <div
-                className="bg-[#3b82f6] h-4 rounded-full transition-all"
-                style={{ width: `${stats.totalParticipants > 0 ? (count / stats.totalParticipants) * 100 : 0}%` }}
-              />
-            </div>
-            <span className="text-xs text-[#6a6a6a] w-8 text-right">{count}</span>
-          </div>
-        ))}
       </div>
     </div>
   );

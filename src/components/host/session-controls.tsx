@@ -16,7 +16,7 @@ export function SessionControls({
       {phase === "waiting" && (
         <button
           onClick={onStart}
-          className="px-6 py-2.5 bg-[#3b82f6] text-white font-medium rounded-lg hover:bg-[#1d4ed8]"
+          className="px-6 py-2.5 bg-[#4F7CFF] text-white font-medium rounded-xl hover:bg-[#6B91FF] transition-all duration-200 hover:shadow-[0_4px_16px_rgba(79,124,255,0.25)] active:scale-[0.98]"
         >
           퀴즈 시작
         </button>
@@ -24,7 +24,7 @@ export function SessionControls({
       {phase === "active" && (
         <button
           onClick={onSkip}
-          className="px-4 py-2 bg-amber-500 text-white font-medium rounded-lg hover:bg-amber-600"
+          className="px-4 py-2 bg-[#F59E0B] text-white font-medium rounded-xl hover:bg-[#D97706] transition-all duration-200 hover:shadow-[0_4px_16px_rgba(245,158,11,0.25)] active:scale-[0.98]"
         >
           다음 문제로
         </button>
@@ -32,7 +32,7 @@ export function SessionControls({
       {(phase === "waiting" || phase === "active" || phase === "intermission") && (
         <button
           onClick={onEnd}
-          className="px-4 py-2 border border-red-300 text-red-600 rounded-lg hover:bg-red-50"
+          className="px-4 py-2 border border-[rgba(239,68,68,0.3)] text-[#EF4444] rounded-xl hover:bg-[rgba(239,68,68,0.08)] transition-all duration-200 active:scale-[0.98]"
         >
           세션 종료
         </button>
