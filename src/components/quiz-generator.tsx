@@ -56,7 +56,7 @@ export function QuizGenerator({
         </div>
 
         <form onSubmit={handleSubmit} className="mt-8 space-y-4">
-          <div className="rounded-[24px] border border-[rgba(0,0,0,0.06)] bg-[#F8F9FB] p-5 transition-all duration-300 focus-within:border-[rgba(79,124,255,0.2)] focus-within:bg-white focus-within:shadow-[0_4px_20px_rgba(0,0,0,0.04)]">
+          <div className="rounded-[24px] border border-[rgba(0,0,0,0.06)] bg-[#F8F9FB] p-5 transition-all duration-300 focus-within:border-[rgba(79,124,255,0.2)]">
             <label htmlFor="topic" className="block text-sm font-medium text-[#6B7280]">
               실험 주제
             </label>
@@ -66,7 +66,7 @@ export function QuizGenerator({
               value={topic}
               onChange={(e) => setTopic(e.target.value)}
               placeholder="예: 산-염기 적정 실험, 유기용매 가열, 증류 장치 조립"
-              className="mt-3 w-full rounded-[20px] border border-[rgba(0,0,0,0.08)] bg-white px-5 py-4 text-[15px] text-[#222222] placeholder-[#9CA3AF] outline-none transition-all duration-200 hover:border-[rgba(0,0,0,0.15)] focus:border-[rgba(79,124,255,0.5)] focus:ring-2 focus:ring-[rgba(79,124,255,0.15)]"
+              className="mt-3 w-full rounded-[20px] border border-[rgba(0,0,0,0.08)] bg-white px-5 py-4 text-[15px] text-[#222222] placeholder-[#9CA3AF] outline-none transition-all duration-200 hover:border-[rgba(0,0,0,0.15)] focus:border-[#4F7CFF] focus:ring-4 focus:ring-[#4F7CFF]/10"
               disabled={loading}
             />
             <div className="mt-4 flex flex-col gap-3 text-sm text-[#6B7280] sm:flex-row sm:items-center sm:justify-between">
