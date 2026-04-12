@@ -6,6 +6,9 @@ import { db } from "@/db";
 import { sessions, participants, questions, answers } from "@/db/schema";
 import { eq, and } from "drizzle-orm";
 import { decrypt } from "@/lib/auth";
+import { analyzeResults } from "@/lib/ai/analyze-results";
+import type { SessionPhase, LiveParticipant as LP } from "@/lib/socket/types";
+import type { QuestionStats as QStats } from "@/lib/socket/types";
 import crypto from "crypto";
 
 const dev = process.env.NODE_ENV !== "production";
@@ -14,32 +17,26 @@ const port = parseInt(process.env.PORT || "3000", 10);
 const GRACE_PERIOD_MS = 500;
 const MAX_PARTICIPANTS = 100;
 
-interface LiveParticipant {
-  id: number;
-  nickname: string;
-  hasAnswered: boolean;
-}
-
-interface QuestionStats {
+interface LocalQuestionStats {
   correctCount: number;
   optionDistribution: number[];
 }
 
 interface LiveSessionState {
   sessionId: number;
-  phase: string;
+  phase: SessionPhase;
   currentQuestionIndex: number;
   targetParticipantCount: number | null;
-  participants: Map<number, LiveParticipant>;
+  participants: Map<number, LP>;
   currentQuestionAnswers: Map<number, number>;
-  questionStats: Map<number, QuestionStats>;
+  questionStats: Map<number, LocalQuestionStats>;
   socketMap: Map<string, number>;
 }
 
 interface SessionStatePayload {
-  phase: string;
+  phase: SessionPhase;
   currentQuestionIndex: number;
-  participants: LiveParticipant[];
+  participants: LP[];
   targetParticipantCount: number | null;
   currentQuestion: {
     index: number;
@@ -51,13 +48,7 @@ interface SessionStatePayload {
     remainingSeconds: number;
   } | null;
   responseCount: number;
-  allQuestionStats: {
-    questionIndex: number;
-    totalParticipants: number;
-    responseCount: number;
-    correctCount: number;
-    optionDistribution: number[];
-  }[];
+  allQuestionStats: QStats[];
   remainingSeconds: number;
 }
 
@@ -71,12 +62,24 @@ function createLiveSession(id: number): LiveSessionState {
   liveSessions.set(id, state);
   return state;
 }
-function persistPhase(sessionId: number, phase: string, idx: number) {
+function persistPhase(sessionId: number, phase: SessionPhase, idx: number) {
   const now = new Date().toISOString();
   const updates: Record<string, unknown> = { phase, currentQuestionIndex: idx };
   if (phase === "active" && idx === 0) updates.startedAt = now;
   if (phase === "completed" || phase === "closed") updates.endedAt = now;
   db.update(sessions).set(updates).where(eq(sessions.id, sessionId)).run();
+}
+
+function runAnalysis(io: Server, sessionId: number, state: LiveSessionState) {
+  analyzeResults(sessionId)
+    .then((result) => {
+      state.phase = "analysis";
+      io.to(`session:${sessionId}:host`).emit("session:analysis-ready", {
+        sessionId,
+        analysis: JSON.stringify(result),
+      });
+    })
+    .catch((err) => console.error("[AI] 자동 분석 실패:", err));
 }
 
 function buildSessionStatePayload(
@@ -190,13 +193,8 @@ app.prepare().then(() => {
       persistPhase(sessionId, "completed", idx);
       io.to(`session:${sessionId}`).emit("session:complete", { sessionId });
       
-      // AI 분석 요청 트리거 (비동기)
-      fetch(`http://localhost:${port}/api/analyze`, {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ sessionId }),
-      }).catch(err => console.error("[AI] 서버 측 자동 분석 요청 실패:", err));
-      
+      runAnalysis(io, sessionId, state);
+
       return;
     }
     const q = questionList[idx];
@@ -249,13 +247,8 @@ app.prepare().then(() => {
       persistPhase(sessionId, "completed", idx);
       io.to(`session:${sessionId}`).emit("session:complete", { sessionId });
       
-      // AI 분석 요청 트리거 (비동기)
-      fetch(`http://localhost:${port}/api/analyze`, {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ sessionId }),
-      }).catch(err => console.error("[AI] 서버 측 자동 분석 요청 실패:", err));
-      
+      runAnalysis(io, sessionId, state);
+
       return;
     }
     state.phase = "intermission";
@@ -264,7 +257,7 @@ app.prepare().then(() => {
     timers.intermission = setTimeout(() => {
       state.currentQuestionIndex++;
       startQuestion(sessionId, state);
-    }, 5000); // 5초 대기 후 다음 문제
+    }, 5000);
     sessionTimers.set(sessionId, timers);
   }
 
@@ -354,12 +347,7 @@ app.prepare().then(() => {
       persistPhase(sessionId, "completed", state.currentQuestionIndex);
       io.to(`session:${sessionId}`).emit("session:complete", { sessionId });
 
-      // AI 분석 요청 트리거 (비동기)
-      fetch(`http://localhost:${port}/api/analyze`, {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ sessionId }),
-      }).catch(err => console.error("[AI] 서버 측 자동 분석 요청 실패:", err));
+      runAnalysis(io, sessionId, state);
     });
 
     socket.on("answer:submit", ({ sessionId, questionIndex, selectedIndex, submittedAt }: { sessionId: number; questionIndex: number; selectedIndex: number; submittedAt: number }) => {
@@ -403,15 +391,18 @@ app.prepare().then(() => {
       
       socket.emit("answer:feedback", { isCorrect, correctIndex: q.correctIndex, explanation: q.explanation ?? "" });
       
-      // 호스트에게 현재 제출 인원 브로드캐스트
+      const participantList = Array.from(state.participants.values()).map((p) => ({
+        id: p.id,
+        nickname: p.nickname,
+        hasAnswered: p.hasAnswered,
+      }));
       io.to(`session:${sessionId}:host`).emit("answer:count", { 
         questionIndex, 
-        responseCount: state.currentQuestionAnswers.size 
+        responseCount: state.currentQuestionAnswers.size,
+        participants: participantList,
       });
 
-      // 모든 참여자가 제출했을 때만 다음으로 넘어감 (최소 1명 이상일 때)
       if (state.participants.size > 0 && state.currentQuestionAnswers.size >= state.participants.size) {
-        const timers = sessionTimers.get(sessionId);
         if (timers?.question) {
           clearTimeout(timers.question);
           timers.question = undefined;
@@ -426,14 +417,19 @@ app.prepare().then(() => {
         const pid = state.socketMap.get(socket.id);
         if (pid) {
           state.socketMap.delete(socket.id);
-          if (state.participants.size === 0 && state.phase === "closed") {
-            liveSessions.delete(sessionId);
-            const timers = sessionTimers.get(sessionId);
-            if (timers) {
-              if (timers.question) clearTimeout(timers.question);
-              if (timers.intermission) clearTimeout(timers.intermission);
-              clearTimerBroadcast(timers);
-              sessionTimers.delete(sessionId);
+          state.participants.delete(pid);
+          state.currentQuestionAnswers.delete(pid);
+          if (state.phase === "closed" || state.phase === "completed") {
+            const anySocketLeft = Array.from(state.socketMap.values()).length === 0;
+            if (anySocketLeft) {
+              liveSessions.delete(sessionId);
+              const timers = sessionTimers.get(sessionId);
+              if (timers) {
+                if (timers.question) clearTimeout(timers.question);
+                if (timers.intermission) clearTimeout(timers.intermission);
+                clearTimerBroadcast(timers);
+                sessionTimers.delete(sessionId);
+              }
             }
           }
           break;
