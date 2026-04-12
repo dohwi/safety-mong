@@ -1,10 +1,10 @@
 "use client";
 
-import { useEffect, useRef, useState } from "react";
+import { useState } from "react";
 import type { QuizGenerationOutput, QuestionOutput } from "@/lib/ai/schemas";
 import { AiWarningBanner } from "@/components/ai-warning-banner";
 import { ReviewChecklist } from "@/components/review-checklist";
-import { BrandMascot } from "@/components/brand-mascot";
+import { SafetyMarkdownEditor } from "@/components/safety-markdown-editor";
 
 interface QuizEditorProps {
   initialData: QuizGenerationOutput;
@@ -31,11 +31,6 @@ export function QuizEditor({ initialData, topic, onSave, saving }: QuizEditorPro
   const [checklistComplete, setChecklistComplete] = useState(false);
   const [showAddModal, setShowAddModal] = useState(false);
   const [newQuestion, setNewQuestion] = useState<QuestionOutput>(createEmptyQuestion());
-  const safetyContentRef = useRef<HTMLTextAreaElement | null>(null);
-
-  useEffect(() => {
-    safetyContentRef.current?.focus();
-  }, []);
 
   function updateQuestion(index: number, field: keyof QuestionOutput, value: unknown) {
     setQuestionList((prev) =>
@@ -119,12 +114,7 @@ export function QuizEditor({ initialData, topic, onSave, saving }: QuizEditorPro
 
       <div className="rounded-[24px] border border-[rgba(0,0,0,0.08)] bg-white p-5">
         <h2 className="mb-2 text-lg font-semibold text-[#222222]">안전수칙</h2>
-        <textarea
-          ref={safetyContentRef}
-          value={safetyContent}
-          onChange={(e) => setSafetyContent(e.target.value)}
-          className="min-h-[200px] w-full rounded-[20px] border border-[rgba(0,0,0,0.06)] bg-[#F8F9FB] px-4 py-4 text-sm text-[#222222] placeholder-[#9CA3AF] outline-none transition-all duration-200 hover:border-[rgba(0,0,0,0.15)] focus:border-[rgba(79,124,255,0.5)] focus:ring-2 focus:ring-[rgba(79,124,255,0.15)]"
-        />
+        <SafetyMarkdownEditor value={safetyContent} onChange={setSafetyContent} />
       </div>
 
       <div className="space-y-6">
