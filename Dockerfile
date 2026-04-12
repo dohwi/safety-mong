@@ -18,8 +18,11 @@ RUN pnpm run build
 FROM base AS runner
 WORKDIR /app
 
+RUN apk add --no-cache tzdata
+
 ENV NODE_ENV=production
 ENV NEXT_TELEMETRY_DISABLED=1
+ENV TZ=Asia/Seoul
 
 RUN addgroup --system --gid 1001 nodejs && \
     adduser --system --uid 1001 appuser
