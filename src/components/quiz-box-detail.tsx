@@ -10,6 +10,8 @@ import type { quizBoxes, questions } from "@/db/schema";
 import { deleteQuizBox, updateSafetyContent, addQuestion, deleteQuestion, updateQuestion } from "@/lib/actions/quiz-boxes";
 import { createSession } from "@/lib/actions/sessions";
 import { AiWarningBanner } from "@/components/ai-warning-banner";
+import { SafetyMarkdownEditor } from "@/components/safety-markdown-editor";
+import { renderBoldText } from "@/lib/render-bold";
 
 type QuizBox = InferSelectModel<typeof quizBoxes>;
 type Question = InferSelectModel<typeof questions>;
@@ -103,7 +105,7 @@ export function QuizBoxDetail({ box, questions: questionList, isEditable, active
   function handleEditQuestion(q: Question) {
     setNewQ({
       text: q.text,
-      options: JSON.parse(q.options),
+      options: JSON.parse(q.options) as string[],
       correctIndex: q.correctIndex,
       questionDurationMs: q.questionDurationMs,
       explanation: q.explanation || "",
@@ -186,12 +188,7 @@ export function QuizBoxDetail({ box, questions: questionList, isEditable, active
             </div>
             {isEditingSafety ? (
               <div className="space-y-4">
-                <textarea
-                  value={safetyDraft}
-                  onChange={(e) => setSafetyDraft(e.target.value)}
-                  className="min-h-[240px] w-full rounded-[20px] border border-[rgba(0,0,0,0.06)] bg-[#F8F9FB] px-4 py-4 text-sm text-[#222222] placeholder-[#9CA3AF] outline-none transition-all duration-200 hover:border-[rgba(0,0,0,0.15)] focus:border-[rgba(79,124,255,0.5)] focus:ring-2 focus:ring-[rgba(79,124,255,0.15)]"
-                  placeholder="실험 안전수칙을 입력하세요."
-                />
+                <SafetyMarkdownEditor value={safetyDraft} onChange={setSafetyDraft} minHeight={320} />
                 <div className="flex gap-2">
                   <button
                     onClick={handleSaveSafety}
@@ -260,7 +257,7 @@ export function QuizBoxDetail({ box, questions: questionList, isEditable, active
                   <p className="text-base font-semibold text-[#222222] leading-relaxed">{q.text}</p>
                   
                   <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
-                    {JSON.parse(q.options).map((opt: string, oi: number) => (
+                    {(JSON.parse(q.options) as string[]).map((opt: string, oi: number) => (
                       <div
                         key={oi}
                         className={`px-4 py-3 rounded-[16px] text-sm transition-all ${
@@ -286,7 +283,7 @@ export function QuizBoxDetail({ box, questions: questionList, isEditable, active
                       </div>
                     </div>
                     <div className="rounded-[16px] bg-[#F8F9FB] px-4 py-3 text-xs leading-relaxed text-[#6B7280]">
-                      <span className="font-bold text-[#4F7CFF] mr-1">💡 해설:</span> {q.explanation}
+                      <span className="font-bold text-[#4F7CFF] mr-1">💡 해설:</span> {renderBoldText(q.explanation ?? "")}
                     </div>
                   </div>
                 </div>

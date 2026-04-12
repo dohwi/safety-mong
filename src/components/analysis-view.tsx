@@ -4,35 +4,42 @@ import { useState, useEffect, useRef } from "react";
 import { useRouter } from "next/navigation";
 import { BrandMascot } from "@/components/brand-mascot";
 import type { AnalysisOutput } from "@/lib/ai/schemas";
+import type { SessionPhase } from "@/lib/socket/types";
+import { renderBoldText } from "@/lib/render-bold";
 
 interface AnalysisViewProps {
   sessionId: number;
   quizBoxTitle: string;
   aiAnalysis: string | null;
-  phase: string;
+  phase: SessionPhase;
 }
 
 export function AnalysisView({ sessionId, quizBoxTitle, aiAnalysis, phase }: AnalysisViewProps) {
   const router = useRouter();
   const [analysis, setAnalysis] = useState<AnalysisOutput | null>(null);
   const [loading, setLoading] = useState(false);
-  const didFetch = useRef(false);
+  const pollStartedRef = useRef(false);
 
   useEffect(() => {
-    if (analysis) return;
     if (aiAnalysis) {
       try { setAnalysis(JSON.parse(aiAnalysis)); } catch {}
       return;
     }
-    if (phase !== "completed" || loading || didFetch.current) return;
+  }, [aiAnalysis]);
 
-    didFetch.current = true;
+  useEffect(() => {
+    if (analysis) return;
+    if (aiAnalysis) return;
+    if (pollStartedRef.current) return;
+
+    pollStartedRef.current = true;
     setLoading(true);
 
-    let cancelled = false;
+    let timerId: ReturnType<typeof setTimeout> | null = null;
+    let dead = false;
 
     async function poll() {
-      if (cancelled) return;
+      if (dead) return;
       try {
         const res = await fetch("/api/analyze", {
           method: "POST",
@@ -41,18 +48,24 @@ export function AnalysisView({ sessionId, quizBoxTitle, aiAnalysis, phase }: Ana
         });
         if (!res.ok) throw new Error("fail");
         const data = await res.json();
-        if (data.summary && !cancelled) {
+        if (data.summary && !dead) {
           setAnalysis(data);
           setLoading(false);
           return;
         }
       } catch {}
-      if (!cancelled) setTimeout(poll, 3000);
+      if (!dead) {
+        timerId = setTimeout(poll, 2000);
+      }
     }
 
     poll();
-    return () => { cancelled = true; };
-  }, [phase, aiAnalysis, analysis, loading, sessionId]);
+
+    return () => {
+      dead = true;
+      if (timerId) clearTimeout(timerId);
+    };
+  }, [sessionId]);
 
   async function handleClose() {
     await fetch("/api/session/close", {
@@ -84,7 +97,7 @@ export function AnalysisView({ sessionId, quizBoxTitle, aiAnalysis, phase }: Ana
               </div>
             </div>
           </div>
-          {analysis && phase === "completed" && (
+          {analysis && (phase === "completed" || phase === "analysis") && (
             <button
               onClick={handleClose}
               className="px-5 py-2.5 bg-[#222222] text-white text-sm font-bold rounded-xl active:scale-[0.98] transition-all"
@@ -106,7 +119,7 @@ export function AnalysisView({ sessionId, quizBoxTitle, aiAnalysis, phase }: Ana
             </div>
             <div className="text-center space-y-2">
               <p className="text-xl font-bold text-[#222222]">분석하고 있어요...</p>
-              <p className="text-[#6B7280]">학생들이 어떤 부분을 헷갈려했는지 파악 중입니다.</p>
+              <p className="text-[#6B7280]">학생들이 어떤 안전수칙을 놓쳤는지 파악 중입니다.</p>
             </div>
           </div>
         )}
@@ -172,8 +185,8 @@ export function AnalysisView({ sessionId, quizBoxTitle, aiAnalysis, phase }: Ana
                           <div className="flex items-start gap-2.5">
                             <span className="mt-0.5 flex items-center justify-center w-5 h-5 rounded bg-[#EF4444] text-white text-[10px] font-black shrink-0">!</span>
                             <div>
-                              <p className="text-xs font-black text-[#EF4444] mb-1">강조 필요</p>
-                              <p className="text-sm text-[#4B5563] leading-relaxed">{q.teachingTip}</p>
+                              <p className="text-xs font-black text-[#EF4444] mb-1">실험 전 강조 필요</p>
+                              <p className="text-sm text-[#4B5563] leading-relaxed">{renderBoldText(q.teachingTip)}</p>
                             </div>
                           </div>
                         </div>

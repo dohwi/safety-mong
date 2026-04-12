@@ -4,6 +4,7 @@ import { db } from "@/db";
 import { sessions, quizBoxes } from "@/db/schema";
 import { eq, and } from "drizzle-orm";
 import { AnalysisView } from "@/components/analysis-view";
+import type { SessionPhase } from "@/lib/socket/types";
 
 export default async function AnalysisPage({
   params,
@@ -31,7 +32,7 @@ export default async function AnalysisPage({
       sessionId={sessionId}
       quizBoxTitle={box.title}
       aiAnalysis={session.aiAnalysis}
-      phase={session.phase}
+      phase={session.phase as SessionPhase}
     />
   );
 }
