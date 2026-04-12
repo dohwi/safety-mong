@@ -22,6 +22,13 @@ const loginAttempts = new Map<string, { count: number; lastAttempt: number }>();
 const MAX_LOGIN_ATTEMPTS = 5;
 const LOGIN_WINDOW_MS = 15 * 60 * 1000;
 
+function cleanupLoginAttempts() {
+  const now = Date.now();
+  for (const [key, val] of loginAttempts.entries()) {
+    if (now - val.lastAttempt >= LOGIN_WINDOW_MS) loginAttempts.delete(key);
+  }
+}
+
 export type ActionState = { error?: string; success?: boolean } | null;
 
 export async function signup(_: ActionState, formData: FormData): Promise<ActionState> {
@@ -66,6 +73,8 @@ export async function login(_: ActionState, formData: FormData): Promise<ActionS
   }
 
   const { email, password } = result.data;
+
+  cleanupLoginAttempts();
 
   const attempts = loginAttempts.get(email);
   if (attempts && attempts.count >= MAX_LOGIN_ATTEMPTS && Date.now() - attempts.lastAttempt < LOGIN_WINDOW_MS) {
