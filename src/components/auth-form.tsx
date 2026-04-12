@@ -11,14 +11,13 @@ interface AuthFormProps {
 }
 
 function useFormFields(mode: "login" | "signup") {
-  const isDev = process.env.NODE_ENV === "development";
-  const [email, setEmail] = useState(isDev && mode === "login" ? "test@teacher.com" : "");
-  const [password, setPassword] = useState(isDev && mode === "login" ? "test1234" : "");
+  const [email, setEmail] = useState(mode === "login" ? "test@teacher.com" : "");
+  const [password, setPassword] = useState(mode === "login" ? "test1234" : "");
   const [prevMode, setPrevMode] = useState(mode);
 
   if (prevMode !== mode) {
     setPrevMode(mode);
-    if (isDev && mode === "login") {
+    if (mode === "login") {
       setEmail("test@teacher.com");
       setPassword("test1234");
     } else {
