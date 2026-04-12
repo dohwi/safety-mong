@@ -2,10 +2,7 @@
 
 import { useEffect, useRef, useState } from "react";
 import { io } from "socket.io-client";
-import type { ServerToClientEvents, ClientToServerEvents } from "@/lib/socket/types";
-import type { Socket } from "socket.io-client";
-
-type TypedSocket = Socket<ServerToClientEvents, ClientToServerEvents>;
+import type { TypedSocket } from "@/lib/socket/types";
 
 export function useSocket(authToken?: string) {
   const socketRef = useRef<TypedSocket | null>(null);

@@ -4,6 +4,7 @@ import { db } from "@/db";
 import { quizBoxes, questions, sessions } from "@/db/schema";
 import { eq, and, inArray } from "drizzle-orm";
 import { QuizBoxDetail } from "@/components/quiz-box-detail";
+import { ACTIVE_PHASES } from "@/lib/socket/types";
 
 export const metadata = { title: "퀴즈함 상세 - 안전몽" };
 
@@ -26,7 +27,7 @@ export default async function QuizBoxPage({ params }: { params: Promise<{ id: st
     .orderBy(questions.index)
     .all();
 
-  const activePhases = ["waiting", "active", "intermission"];
+  const activePhases = ACTIVE_PHASES as readonly string[];
   const activeSessions = db.select().from(sessions).where(
     and(eq(sessions.quizBoxId, boxId), inArray(sessions.phase, activePhases))
   ).all();

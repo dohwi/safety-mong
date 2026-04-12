@@ -6,6 +6,7 @@ import { quizBoxes, questions, sessions, participants, answers } from "@/db/sche
 import { eq, and, inArray } from "drizzle-orm";
 import { getSession } from "@/lib/auth";
 import { redirect } from "next/navigation";
+import { ACTIVE_PHASES } from "@/lib/socket/types";
 
 export type QuestionInput = {
   text: string;
@@ -101,7 +102,7 @@ export async function deleteQuizBox(quizBoxId: number) {
   return { success: true };
 }
 
-const activePhases = ["waiting", "active", "intermission"];
+const activePhases = ACTIVE_PHASES as readonly string[];
 
 function hasActiveSession(quizBoxId: number): boolean {
   const active = db.select().from(sessions).where(

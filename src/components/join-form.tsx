@@ -3,6 +3,7 @@
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { useSocket } from "@/hooks/use-socket";
+import { getCookie } from "@/lib/cookie";
 
 export function JoinForm({ sessionId }: { sessionId: number }) {
   const [nickname, setNickname] = useState("");
@@ -42,7 +43,4 @@ export function JoinForm({ sessionId }: { sessionId: number }) {
   );
 }
 
-function getCookie(name: string): string | null {
-  const match = document.cookie.match(new RegExp(`(^| )${name}=([^;]+)`));
-  return match ? match[2] : null;
-}
+

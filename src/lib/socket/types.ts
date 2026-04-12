@@ -1,4 +1,10 @@
+import type { Socket } from "socket.io-client";
+
 export type SessionPhase = "waiting" | "active" | "intermission" | "completed" | "analysis" | "closed";
+
+export const ACTIVE_PHASES: readonly SessionPhase[] = ["waiting", "active", "intermission"] as const;
+
+export type TypedSocket = Socket<ServerToClientEvents, ClientToServerEvents>;
 
 export interface QuestionBroadcast {
   index: number;
@@ -67,9 +73,10 @@ export interface ServerToClientEvents {
   "question:start": (data: QuestionBroadcast) => void;
   "question:timer": (data: { remainingSeconds: number }) => void;
   "answer:feedback": (data: AnswerFeedback) => void;
-  "answer:count": (data: { questionIndex: number; responseCount: number }) => void;
+  "answer:count": (data: { questionIndex: number; responseCount: number; participants?: LiveParticipant[] }) => void;
   "question:end": (data: { questionIndex: number; correctIndex: number; explanation: string }) => void;
   "question:stats": (data: QuestionStats) => void;
   "session:complete": (data: { sessionId: number }) => void;
   "session:state": (data: SessionStatePayload) => void;
+  "session:analysis-ready": (data: { sessionId: number; analysis: string }) => void;
 }

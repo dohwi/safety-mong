@@ -1,11 +1,8 @@
 "use client";
 
-import { useState, useEffect, useCallback, useRef } from "react";
-import type { SessionPhase, LiveParticipant, QuestionStats, QuestionBroadcast } from "@/lib/socket/types";
-import type { Socket } from "socket.io-client";
-import type { ServerToClientEvents, ClientToServerEvents } from "@/lib/socket/types";
-
-type TypedSocket = Socket<ServerToClientEvents, ClientToServerEvents>;
+import { useState, useEffect, useCallback } from "react";
+import type { SessionPhase, LiveParticipant, QuestionStats, QuestionBroadcast, TypedSocket } from "@/lib/socket/types";
+import { useCountdown, computeRemaining } from "@/hooks/use-countdown";
 
 interface HostState {
   phase: SessionPhase;
@@ -20,13 +17,7 @@ interface HostState {
   remainingSeconds: number;
   targetParticipantCount: number | null;
   currentQuestion: QuestionBroadcast | null;
-}
-
-function computeRemaining(q: { startedAt: number; durationMs: number; serverNow?: number }): number {
-  const offset = q.serverNow ? q.serverNow - Date.now() : 0;
-  const serverNow = Date.now() + offset;
-  const remaining = q.startedAt + q.durationMs - serverNow;
-  return Math.max(0, Math.ceil(remaining / 1000));
+  aiAnalysis: string | null;
 }
 
 export function useHostDashboard(socket: TypedSocket | null, sessionId: number) {
@@ -43,31 +34,12 @@ export function useHostDashboard(socket: TypedSocket | null, sessionId: number) 
     remainingSeconds: 0,
     targetParticipantCount: null,
     currentQuestion: null,
+    aiAnalysis: null,
   });
 
-  const countdownRef = useRef<ReturnType<typeof setInterval> | null>(null);
-  const questionMetaRef = useRef<{ startedAt: number; durationMs: number; offset: number } | null>(null);
-
-  function startLocalCountdown(meta: { startedAt: number; durationMs: number; serverNow?: number }) {
-    const offset = meta.serverNow ? meta.serverNow - Date.now() : 0;
-    questionMetaRef.current = { startedAt: meta.startedAt, durationMs: meta.durationMs, offset };
-    if (countdownRef.current) clearInterval(countdownRef.current);
-    countdownRef.current = setInterval(() => {
-      if (!questionMetaRef.current) return;
-      const { startedAt, durationMs, offset } = questionMetaRef.current;
-      const remaining = startedAt + durationMs - (Date.now() + offset);
-      const seconds = Math.max(0, Math.ceil(remaining / 1000));
-      setState((prev) => ({ ...prev, remainingSeconds: seconds }));
-    }, 250);
-  }
-
-  function stopLocalCountdown() {
-    questionMetaRef.current = null;
-    if (countdownRef.current) {
-      clearInterval(countdownRef.current);
-      countdownRef.current = null;
-    }
-  }
+  const { startLocalCountdown, stopLocalCountdown } = useCountdown(
+    (seconds) => setState((prev) => ({ ...prev, remainingSeconds: seconds }))
+  );
 
   useEffect(() => {
     if (!socket) return;
@@ -144,6 +116,7 @@ export function useHostDashboard(socket: TypedSocket | null, sessionId: number) 
         questionStats: null,
         correctCount: 0,
         remainingSeconds: initial,
+        participants: prev.participants.map((p) => ({ ...p, hasAnswered: false })),
       }));
     });
 
@@ -151,7 +124,11 @@ export function useHostDashboard(socket: TypedSocket | null, sessionId: number) 
     });
 
     socket.on("answer:count", (data) => {
-      setState((prev) => ({ ...prev, responseCount: data.responseCount }));
+      setState((prev) => ({
+        ...prev,
+        responseCount: data.responseCount,
+        participants: data.participants ?? prev.participants,
+      }));
     });
 
     socket.on("question:stats", (data) => {
@@ -179,6 +156,12 @@ export function useHostDashboard(socket: TypedSocket | null, sessionId: number) 
       setState((prev) => ({ ...prev, phase: "completed", currentQuestion: null, remainingSeconds: 0 }));
     });
 
+    socket.on("session:analysis-ready", (data) => {
+      if (data.sessionId === sessionId) {
+        setState((prev) => ({ ...prev, phase: "analysis", aiAnalysis: data.analysis }));
+      }
+    });
+
     return () => {
       socket.off("session:state");
       socket.off("participant:joined");
@@ -188,6 +171,7 @@ export function useHostDashboard(socket: TypedSocket | null, sessionId: number) 
       socket.off("question:stats");
       socket.off("question:end");
       socket.off("session:complete");
+      socket.off("session:analysis-ready");
       stopLocalCountdown();
     };
   }, [socket, sessionId]);

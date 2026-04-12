@@ -1,11 +1,8 @@
 "use client";
 
-import { useState, useCallback, useEffect, useRef } from "react";
-import type { QuestionBroadcast, AnswerFeedback, QuestionReviewItem, SessionPhase } from "@/lib/socket/types";
-import type { Socket } from "socket.io-client";
-import type { ServerToClientEvents, ClientToServerEvents } from "@/lib/socket/types";
-
-type TypedSocket = Socket<ServerToClientEvents, ClientToServerEvents>;
+import { useState, useCallback, useEffect } from "react";
+import type { QuestionBroadcast, AnswerFeedback, QuestionReviewItem, SessionPhase, TypedSocket } from "@/lib/socket/types";
+import { useCountdown, computeRemaining } from "@/hooks/use-countdown";
 
 interface QuizState {
   phase: SessionPhase;
@@ -17,13 +14,6 @@ interface QuizState {
   correctCount: number;
   reviewItems: QuestionReviewItem[];
   remainingSeconds: number;
-}
-
-function computeRemaining(q: { startedAt: number; durationMs: number; serverNow?: number }): number {
-  const offset = q.serverNow ? q.serverNow - Date.now() : 0;
-  const serverNow = Date.now() + offset;
-  const remaining = q.startedAt + q.durationMs - serverNow;
-  return Math.max(0, Math.ceil(remaining / 1000));
 }
 
 export function useQuiz(socket: TypedSocket | null, sessionId: number) {
@@ -39,29 +29,9 @@ export function useQuiz(socket: TypedSocket | null, sessionId: number) {
     remainingSeconds: 0,
   });
 
-  const countdownRef = useRef<ReturnType<typeof setInterval> | null>(null);
-  const questionMetaRef = useRef<{ startedAt: number; durationMs: number; offset: number } | null>(null);
-
-  function startLocalCountdown(meta: { startedAt: number; durationMs: number; serverNow?: number }) {
-    const offset = meta.serverNow ? meta.serverNow - Date.now() : 0;
-    questionMetaRef.current = { startedAt: meta.startedAt, durationMs: meta.durationMs, offset };
-    if (countdownRef.current) clearInterval(countdownRef.current);
-    countdownRef.current = setInterval(() => {
-      if (!questionMetaRef.current) return;
-      const { startedAt, durationMs, offset } = questionMetaRef.current;
-      const remaining = startedAt + durationMs - (Date.now() + offset);
-      const seconds = Math.max(0, Math.ceil(remaining / 1000));
-      setState((prev) => ({ ...prev, remainingSeconds: seconds }));
-    }, 250);
-  }
-
-  function stopLocalCountdown() {
-    questionMetaRef.current = null;
-    if (countdownRef.current) {
-      clearInterval(countdownRef.current);
-      countdownRef.current = null;
-    }
-  }
+  const { startLocalCountdown, stopLocalCountdown, isActive: isCountdownActive } = useCountdown(
+    (seconds) => setState((prev) => ({ ...prev, remainingSeconds: seconds }))
+  );
 
   useEffect(() => {
     if (!socket) return;
@@ -113,7 +83,7 @@ export function useQuiz(socket: TypedSocket | null, sessionId: number) {
     });
 
     socket.on("question:timer", (data) => {
-      if (!questionMetaRef.current && Number.isFinite(data.remainingSeconds) && data.remainingSeconds > 0) {
+      if (!isCountdownActive() && Number.isFinite(data.remainingSeconds) && data.remainingSeconds > 0) {
         setState((prev) => ({ ...prev, remainingSeconds: data.remainingSeconds }));
       }
     });

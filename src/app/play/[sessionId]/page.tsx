@@ -5,9 +5,12 @@ import { useSearchParams } from "next/navigation";
 import Link from "next/link";
 import { useSocket } from "@/hooks/use-socket";
 import { useQuiz } from "@/hooks/use-quiz";
+import { useSessionBgm } from "@/hooks/use-session-bgm";
+import { getCookie } from "@/lib/cookie";
 import { WaitingRoom } from "@/components/student/waiting-room";
 import { QuestionCard } from "@/components/student/question-card";
 import { FeedbackOverlay } from "@/components/student/feedback-overlay";
+import { FloatingLabShapes } from "@/components/floating-lab-shapes";
 import { QuizComplete } from "@/components/student/quiz-complete";
 import { use } from "react";
 
@@ -18,6 +21,7 @@ function PlayContent({ sessionId }: { sessionId: number }) {
 
   const { socket } = useSocket();
   const { state, submitAnswer } = useQuiz(socket, sessionId);
+  useSessionBgm(state.phase);
   const [participantCount, setParticipantCount] = useState(0);
   const [targetParticipantCount, setTargetParticipantCount] = useState<number | null>(null);
   const [joinError, setJoinError] = useState<string | null>(null);
@@ -97,17 +101,12 @@ function PlayContent({ sessionId }: { sessionId: number }) {
                 <div className="relative flex flex-col items-center text-center space-y-6">
                   {/* 애니메이션 요소들 */}
                   <div className="relative">
-                    <div className="absolute inset-0 bg-[#4F7CFF]/20 rounded-full blur-2xl animate-pulse" />
-                    <div className="relative flex items-center justify-center w-20 h-20 sm:w-24 sm:h-24 rounded-[2rem] bg-gradient-to-br from-[#4F7CFF] to-[#7C5CFF] text-white shadow-[0_12px_40px_rgba(79,124,255,0.3)] rotate-3 animate-lab-float">
-                      <svg className="w-10 h-10 sm:w-12 sm:h-12" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
-                      </svg>
-                    </div>
+                    <FloatingLabShapes count={5} />
                   </div>
 
                   <div className="space-y-2 max-w-sm">
                     <h3 className="text-2xl sm:text-3xl font-black text-[#222222] tracking-tight">
-                      잠시 숨 고르기!
+                      다음 문제 준비중!
                     </h3>
                     <p className="text-[#6B7280] font-medium leading-relaxed">
                       실험몽이 다음 문제를 정성껏 준비하고 있어요.<br className="hidden sm:block" />
@@ -116,10 +115,7 @@ function PlayContent({ sessionId }: { sessionId: number }) {
                   </div>
 
                   <div className="w-48 h-1.5 bg-[#F1F3F8] rounded-full overflow-hidden">
-                    <div 
-                      className="h-full bg-gradient-to-r from-[#4F7CFF] to-[#7C5CFF] rounded-full"
-                      style={{ animation: 'loading-progress 1.5s infinite ease-in-out' }} 
-                    />
+                    <div className="h-full w-1/3 bg-gradient-to-r from-[#4F7CFF] via-[#7C5CFF] to-[#4F7CFF] rounded-full animate-loading-bar" />
                   </div>
                 </div>
 
@@ -157,7 +153,4 @@ export default function PlayPage({ params }: { params: Promise<{ sessionId: stri
   );
 }
 
-function getCookie(name: string): string | null {
-  const match = document.cookie.match(new RegExp(`(^| )${name}=([^;]+)`));
-  return match ? match[2] : null;
-}
+
