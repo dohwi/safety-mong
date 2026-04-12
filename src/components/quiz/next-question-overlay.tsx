@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import { FloatingLabShapes } from "@/components/floating-lab-shapes";
 
 interface NextQuestionOverlayProps {
   correctCount: number;
@@ -60,17 +61,12 @@ export function NextQuestionOverlay({
         phase === "leaving" ? "opacity-0 translate-y-[20px] transition-all duration-500" : "animate-content-float"
       }`}>
         <div className="relative">
-          <div className="absolute inset-0 bg-[#4F7CFF]/20 rounded-full blur-3xl animate-pulse" />
-          <div className="relative w-28 h-28 rounded-[2.5rem] bg-gradient-to-br from-[#4F7CFF] to-[#7C5CFF] flex items-center justify-center text-white shadow-xl rotate-6 animate-lab-float">
-            <svg className="w-14 h-14" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-3 7h3m-3 4h3m-6-4h.01M9 16h.01" />
-            </svg>
-          </div>
+          <FloatingLabShapes count={5} />
         </div>
 
         <div className="space-y-3">
           <h2 className="text-4xl font-black text-[#222222] tracking-tight">
-            {customTitle || "결과 분석 중..."}
+            {customTitle || "다음 문제 준비중"}
           </h2>
           {customSubtitle ? (
             <p className="text-lg text-[#6B7280] font-semibold">{customSubtitle}</p>
@@ -91,8 +87,7 @@ export function NextQuestionOverlay({
 
         <div className="w-64 h-2 bg-[#F1F3F8] rounded-full overflow-hidden shadow-inner">
           <div 
-            className="h-full bg-gradient-to-r from-[#4F7CFF] via-[#7C5CFF] to-[#4F7CFF] rounded-full bg-[length:200%_100%]"
-            style={{ animation: 'loading-progress 1.5s infinite linear' }} 
+            className="h-full w-1/3 bg-gradient-to-r from-[#4F7CFF] via-[#7C5CFF] to-[#4F7CFF] rounded-full animate-loading-bar"
           />
         </div>
         

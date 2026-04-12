@@ -28,8 +28,8 @@ export const questionBreakdownSchema = z.object({
   topWrongOptionIndex: z.number().nullable(),
   topWrongOptionText: z.string().nullable(),
   topWrongSelectionRate: z.number().nullable(),
-  whyStudentsConfused: z.string(),
-  teachingTip: z.string(),
+  whyStudentsConfused: z.string().nullable(),
+  teachingTip: z.string().nullable(),
 });
 
 export const analysisSchema = z.object({

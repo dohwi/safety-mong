@@ -25,7 +25,19 @@ export function ReviewChecklist({ onComplete }: { onComplete: (complete: boolean
       {CHECKLIST_ITEMS.map((item, i) => (
         <label key={i} className={`flex items-start gap-3 rounded-xl px-3 py-3 cursor-pointer transition-all duration-200 border ${checked.has(i) ? "border-[rgba(79,124,255,0.2)] bg-[rgba(79,124,255,0.04)]" : "border-[rgba(0,0,0,0.04)] hover:border-[rgba(0,0,0,0.1)] hover:bg-[#F8F9FB]"}`}>
           <input type="checkbox" checked={checked.has(i)} onChange={() => toggle(i)} className="mt-0.5 w-4 h-4 rounded accent-[#4F7CFF]" />
-          <span className="text-sm text-[#222222]">{item}</span>
+          <span className="relative text-sm text-[#222222] inline-block">
+            <span className={`inline-block transition-opacity duration-200 ${checked.has(i) ? "opacity-50" : "opacity-100"}`}>
+              {item}
+            </span>
+            <span
+              className="absolute top-1/2 left-0 h-[1.5px] bg-[#4F7CFF] pointer-events-none"
+              style={{
+                width: checked.has(i) ? "100%" : "0%",
+                transition: "width 0.35s cubic-bezier(0.25, 0.46, 0.45, 0.94)",
+                transform: "translateY(-50%)",
+              }}
+            />
+          </span>
         </label>
       ))}
     </div>

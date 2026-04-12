@@ -1,6 +1,6 @@
 "use client";
 
-import { useMemo } from "react";
+import { useState, useEffect } from "react";
 import { useSocket } from "@/hooks/use-socket";
 import { useHostDashboard } from "@/hooks/use-host-dashboard";
 import { SessionControls } from "./session-controls";
@@ -9,6 +9,8 @@ import { QuestionStatsDisplay } from "./question-stats";
 import { QRCodeSVG } from "qrcode.react";
 import { AnalysisView } from "../analysis-view";
 import { NextQuestionOverlay } from "../quiz/next-question-overlay";
+import { FloatingLabShapes } from "@/components/floating-lab-shapes";
+import { useSessionBgm } from "@/hooks/use-session-bgm";
 
 interface LiveDashboardProps {
   sessionId: number;
@@ -27,15 +29,15 @@ export function LiveDashboard({
   qrUrl,
   authToken,
 }: LiveDashboardProps) {
-  const dynamicQrUrl = useMemo(() => {
-    if (typeof window !== "undefined") {
-      return `${window.location.origin}/join/${sessionCode}`;
-    }
-    return qrUrl;
-  }, [sessionCode, qrUrl]);
+  const [dynamicQrUrl, setDynamicQrUrl] = useState(qrUrl);
+
+  useEffect(() => {
+    setDynamicQrUrl(`${window.location.origin}/join/${sessionCode}`);
+  }, [sessionCode]);
 
   const { socket } = useSocket(authToken);
   const { state, startSession, skipQuestion, endSession } = useHostDashboard(socket, sessionId);
+  useSessionBgm(state.phase);
   const displaySeconds = Number.isFinite(state.remainingSeconds) ? Math.max(0, state.remainingSeconds) : 0;
 
   return (
@@ -163,17 +165,10 @@ export function LiveDashboard({
 
       {state.phase === "intermission" && (
         <div className="flex flex-col items-center justify-center py-12 space-y-8 animate-fade-in-up">
-          <div className="relative">
-            <div className="absolute inset-0 bg-[#4F7CFF]/20 rounded-full blur-3xl animate-pulse" />
-            <div className="relative w-24 h-24 rounded-[2.5rem] bg-gradient-to-br from-[#4F7CFF] to-[#7C5CFF] flex items-center justify-center text-white shadow-xl rotate-6 animate-lab-float">
-              <svg className="w-12 h-12" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-3 7h3m-3 4h3m-6-4h.01M9 16h.01" />
-              </svg>
-            </div>
-          </div>
+          <FloatingLabShapes count={5} />
 
           <div className="text-center space-y-2">
-            <h2 className="text-3xl font-black text-[#222222]">결과 분석 중...</h2>
+            <h2 className="text-3xl font-black text-[#222222]">다음 문제 준비중</h2>
             <div className="flex items-center justify-center gap-4 text-[#6B7280] font-medium">
               <span>최종 정답 {state.correctCount}명</span>
               <span className="w-1 h-1 rounded-full bg-[#D1D5DB]" />
@@ -189,23 +184,12 @@ export function LiveDashboard({
         </div>
       )}
 
-      {state.phase === "completed" && (
+      {(state.phase === "completed" || state.phase === "analysis") && (
         <div className="animate-fade-in-up">
           <AnalysisView 
             sessionId={sessionId} 
             quizBoxTitle={quizBoxTitle} 
-            aiAnalysis={null} 
-            phase={state.phase} 
-          />
-        </div>
-      )}
-
-      {state.phase === "analysis" && (
-        <div className="animate-fade-in-up">
-          <AnalysisView 
-            sessionId={sessionId} 
-            quizBoxTitle={quizBoxTitle} 
-            aiAnalysis={null}
+            aiAnalysis={state.aiAnalysis}
             phase={state.phase}
           />
         </div>

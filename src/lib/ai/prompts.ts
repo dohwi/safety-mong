@@ -10,17 +10,19 @@ export const SYSTEM_PROMPT = `당신은 한국 대학 실험실 안전 교육 �
 - category는 안전 항목 분류입니다 (예: 화학취급, 전기안전, 개인보호구, 비상대응, 폐기물처리)
 - commonMisconception은 학생들이 흔히 갖는 오개념을 설명합니다. 핵심 단어는 **굵게** 표시하세요.
 - 난이도는 대학생 수준에 맞추세요
-- 한국어로 작성하세요`;
+- 모든 텍스트는 반드시 한국어로만 작성하세요. 영어, 중국어, 러시아어 등 다른 언어를 섞어 쓰지 마세요. 전문 용어도 한국어로 표기하세요.`;
 
 export function buildQuizPrompt(topic: string): string {
   return `실험 주제: ${topic}
 
 이 실험과 관련된 안전수칙을 작성하고, 각 안전수칙에 대해 퀴즈 문제를 5개 생성해주세요.
 
+**반드시 모든 텍스트를 한국어로만 작성하세요. 영어, 중국어, 러시아어, 일본어 등 다른 언어를 절대 섞어 쓰지 마세요.**
+
 다음 형식으로 출력하세요:
 1. icon: 실험 주제를 가장 잘 나타내는 이모지 하나 (예: 🧪 화학, 🔬 분석, ⚡ 전기, 🔥 화재, 🛡️ 보호구, ☢️ 방사선, 🧬 생물, 🦠 미생물, 💊 약품, 🧫 배양, ⚗️ 증류, 🌡️ 온도, 🧯 소화, 💡 광학)
-2. safetyContent: 실험 안전수칙 전체 내용 (마크다운 형식)
-3. questions: 퀴즈 문제 배열 (각 문제는 text, options, correctIndex, questionDurationMs, explanation, category, commonMisconception 포함)
+2. safetyContent: 실험 안전수칙 전체 내용 (마크다운 형식, 한국어만 사용)
+3. questions: 퀴즈 문제 배열 (각 문제는 text, options, correctIndex, questionDurationMs, explanation, category, commonMisconception 포함, 모두 한국어로만 작성)
    - **중요**: explanation 및 commonMisconception 내의 핵심 키워드는 반드시 **굵게** 표시하세요.`;
 }
 
@@ -64,9 +66,11 @@ ${optionsDetail}
 
 ${questionStats}
 
+이 서비스는 학생들이 실험 시작 전에 안전수칙 퀴즈를 풀며 안전 의식을 되새기는 것이 목적입니다. 오답 분석 결과는 교강사가 실험 시작 전에 한 번 더 강조할 부분을 파악하는 용도입니다.
+
 위 데이터를 분석하여 다음을 작성하세요:
 
-1. summary: 전체 그룹의 안전 지식 이해도를 한두 문장으로 요약. 전반적인 경향과 특기할 만한 점을 포함.
+1. summary: 전체 그룹의 안전 지식 이해도를 한두 문장으로 요약. 실험 시작 전에 특별히 주의해야 할 점을 포함.
 2. overallCorrectRate: 전체 평균 정답률 (0~1 사이 소수)
 3. questionBreakdowns: 각 문항별 분석. 반드시 모든 문항을 포함할 것.
    - questionIndex: 문제 번호 (0부터 시작)
@@ -77,13 +81,13 @@ ${questionStats}
    - topWrongOptionIndex: 가장 많이 선택된 오답의 인덱스 (0~3), 정답률 100%면 null
    - topWrongOptionText: 가장 많이 선택된 오답의 텍스트, 정답률 100%면 null
    - topWrongSelectionRate: 오답 최다 선택 비율 (0~1), 정답률 100%면 null
-   - whyStudentsConfused: 학생들이 왜 이 오답을 헷갈렸는지 구체적으로 설명 (예: "A와 B의 차이를 헷갈려서...", "~이라는 잘못된 상식 때문에..."). 핵심 단어는 **굵게** 표시.
-   - teachingTip: 다음 수업에서 이 부분을 어떻게 가르치면 좋을지 구체적인 팁. 강조할 부분은 **굵게** 표시.
+   - whyStudentsConfused: 학생들이 왜 이 오답을 헷갈렸는지 구체적으로 설명 (예: "A와 B의 차이를 헷갈려서...", "~이라는 잘못된 상식 때문에..."). 핵심 단어는 **굵게** 표시. 정답률 100%면 null.
+   - teachingTip: 실험 시작 전 교강사가 학생들에게 강조해야 할 핵심 포인트. 실험 전체 안전과 직결되는 내용을 구체적으로 제시. 강조할 부분은 **굵게** 표시. 정답률 100%면 null.
 4. topMisconceptions: 2~3개의 가장 두드러진 오개념 패턴. 각각 affectedQuestions(0부터 시작하는 문항 인덱스 배열), misconception(오개념 요약), explanation(왜 이 오해가 생겼는지) 포함.
- 5. recommendations: 2~3개의 우선순위별 추가 교육 제안 배열. 각 항목은 다음 3개 필드를 반드시 포함:
+ 5. recommendations: 2~3개의 우선순위별 실험 전 강조 제안 배열. 각 항목은 다음 3개 필드를 반드시 포함:
     - priority: "high" 또는 "medium" 또는 "low"
-    - title: 제안 제목 (예: "개인보호구 착용 실습 강화")
-    - description: 제안 상세 내용 (예: "장갑과 고글 착용 순서를 실습하는 시간을 마련하세요")`;
+    - title: 제안 제목 (예: "실험 전 개인보호구 착용 순서 강조")
+    - description: 실험 시작 전 교강사가 학생들에게 구체적으로 당부할 내용 (예: "실험 시작 전 장갑과 고글 착용 순서를 직접 시연하며 설명하세요")`;
 }
 
 export const FEW_SHOT_EXAMPLES = `

@@ -120,7 +120,7 @@ export async function analyzeResults(sessionId: number): Promise<AnalysisOutput>
     
     const result = await generateText({
       model: openrouter.chatModel("google/gemini-2.0-flash-001"),
-      system: "당신은 실험실 안전 교육 분석 전문가입니다. 학생들의 오답 데이터를 분석하여 어떤 개념에서 혼동이 있었는지 구체적으로 파악합니다. 반드시 한국어로 답변하세요.",
+      system: "당신은 실험실 안전 교육 분석 전문가입니다. 학생들이 실험 시작 전에 안전수칙 퀴즈를 푼 결과를 분석하여, 교강사가 실험 시작 전에 한 번 더 강조해야 할 안전 포인트를 도출합니다. 반드시 한국어로 답변하세요.",
       prompt: buildAnalysisPrompt({
         topic: box.title,
         totalParticipants,

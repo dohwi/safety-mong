@@ -2,6 +2,7 @@
 
 import { BrandMascot } from "@/components/brand-mascot";
 import type { QuestionReviewItem } from "@/lib/socket/types";
+import { renderBoldText } from "@/lib/render-bold";
 
 export function QuizComplete({
   correctCount,
@@ -44,7 +45,7 @@ export function QuizComplete({
               <div className="rounded-2xl border border-[rgba(245,158,11,0.15)] bg-[rgba(245,158,11,0.06)] px-4 py-3 text-left text-[#F59E0B]">
                 <p className="text-xs font-semibold">실험몽 복습 노트</p>
                 <p className="mt-1 text-sm font-medium text-[#222222]">문제 {item.questionIndex + 1}. {item.questionText}</p>
-                <p className="mt-2 text-sm leading-6 text-[#6B7280]">{item.explanation}</p>
+                <p className="mt-2 text-sm leading-6 text-[#6B7280]">{renderBoldText(item.explanation)}</p>
               </div>
               <div className="mt-4 flex items-end justify-between gap-4">
                 <div className="min-w-0 flex-1 text-left text-sm text-[#9CA3AF]">
