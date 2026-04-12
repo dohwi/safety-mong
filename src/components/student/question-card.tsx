@@ -1,5 +1,6 @@
 "use client";
 
+import { memo } from "react";
 import type { QuestionBroadcast } from "@/lib/socket/types";
 
 interface QuestionCardProps {
@@ -9,7 +10,7 @@ interface QuestionCardProps {
   onSubmit: (selectedIndex: number) => void;
 }
 
-export function QuestionCard({ question, selectedIndex, remainingSeconds, onSubmit }: QuestionCardProps) {
+export const QuestionCard = memo(function QuestionCard({ question, selectedIndex, remainingSeconds, onSubmit }: QuestionCardProps) {
   const disabled = selectedIndex !== null;
   const displaySeconds = Number.isFinite(remainingSeconds) ? Math.max(0, remainingSeconds) : 0;
 
@@ -66,4 +67,4 @@ export function QuestionCard({ question, selectedIndex, remainingSeconds, onSubm
       </div>
     </div>
   );
-}
+});

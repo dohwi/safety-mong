@@ -1,9 +1,11 @@
 "use client";
 
+import { memo } from "react";
 import { BrandMascot } from "@/components/brand-mascot";
 import type { AnswerFeedback } from "@/lib/socket/types";
+import { renderBoldText } from "@/lib/render-bold";
 
-export function FeedbackOverlay({
+export const FeedbackOverlay = memo(function FeedbackOverlay({
   feedback,
   isTimeUp,
 }: {
@@ -57,11 +59,11 @@ export function FeedbackOverlay({
         <p className="text-xs font-bold uppercase tracking-wider opacity-80">{title}</p>
         <p className="mt-1 text-lg font-bold text-[#222222]">{summary}</p>
         <div className="mt-4 h-px w-full bg-current opacity-10" />
-        <p className="mt-4 text-base leading-relaxed text-[#4B5563]">{explanation}</p>
+        <p className="mt-4 text-base leading-relaxed text-[#4B5563]">{renderBoldText(explanation)}</p>
       </div>
       <div className="mt-8 flex justify-center">
         <BrandMascot variant={mascotVariant} size={200} className="h-auto w-40 shrink-0 drop-shadow-md sm:w-48" />
       </div>
     </div>
   );
-}
+});

@@ -1,8 +1,9 @@
 "use client";
 
+import { memo } from "react";
 import type { LiveParticipant } from "@/lib/socket/types";
 
-export function ParticipantList({ participants, responseCount }: { participants: LiveParticipant[]; responseCount: number }) {
+export const ParticipantList = memo(function ParticipantList({ participants, responseCount }: { participants: LiveParticipant[]; responseCount: number }) {
   return (
     <div className="border border-[rgba(0,0,0,0.08)] rounded-[2rem] p-6 bg-white shadow-sm flex flex-col h-full">
       <div className="flex items-center justify-between mb-4">
@@ -41,4 +42,4 @@ export function ParticipantList({ participants, responseCount }: { participants:
       </div>
     </div>
   );
-}
+});

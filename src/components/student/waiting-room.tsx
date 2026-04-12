@@ -1,8 +1,9 @@
 "use client";
 
+import { memo } from "react";
 import { BrandMascot } from "@/components/brand-mascot";
 
-export function WaitingRoom({ participantCount, targetParticipantCount }: { participantCount: number; targetParticipantCount: number | null }) {
+export const WaitingRoom = memo(function WaitingRoom({ participantCount, targetParticipantCount }: { participantCount: number; targetParticipantCount: number | null }) {
   const hasTarget = targetParticipantCount && targetParticipantCount > 0;
   const progress = hasTarget ? Math.min(100, (participantCount / targetParticipantCount!) * 100) : 0;
   const allJoined = hasTarget && participantCount >= targetParticipantCount!;
@@ -40,4 +41,4 @@ export function WaitingRoom({ participantCount, targetParticipantCount }: { part
       )}
     </div>
   );
-}
+});

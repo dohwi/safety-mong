@@ -1,8 +1,9 @@
 "use client";
 
+import { memo } from "react";
 import type { QuestionStats } from "@/lib/socket/types";
 
-export function QuestionStatsDisplay({ stats, totalQuestions }: { stats: QuestionStats[]; totalQuestions: number }) {
+export const QuestionStatsDisplay = memo(function QuestionStatsDisplay({ stats, totalQuestions }: { stats: QuestionStats[]; totalQuestions: number }) {
   if (!stats || stats.length === 0) return null;
 
   const totalCorrect = stats.reduce((sum, s) => sum + s.correctCount, 0);
@@ -29,4 +30,4 @@ export function QuestionStatsDisplay({ stats, totalQuestions }: { stats: Questio
       </div>
     </div>
   );
-}
+});

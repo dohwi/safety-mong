@@ -1,12 +1,15 @@
 "use client";
 
-export function SessionControls({
+import { memo } from "react";
+import type { SessionPhase } from "@/lib/socket/types";
+
+export const SessionControls = memo(function SessionControls({
   phase,
   onStart,
   onSkip,
   onEnd,
 }: {
-  phase: string;
+  phase: SessionPhase;
   onStart: () => void;
   onSkip: () => void;
   onEnd: () => void;
@@ -39,4 +42,4 @@ export function SessionControls({
       )}
     </div>
   );
-}
+});
